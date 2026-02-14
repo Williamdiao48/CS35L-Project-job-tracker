@@ -24,7 +24,7 @@ const userSchema = new mongoose.schema({
 })
 
 //hash password helper method
-userSchema.pre('save', async function (next)){
+userSchema.pre('save', async function (next){
     if(!this.isModified('password')){return next();}
 
     try{
@@ -34,7 +34,7 @@ userSchema.pre('save', async function (next)){
     }catch(error){
         next(error);
     }
-}
+});
 userSchema.methods.comparePassword = async function(canidatePassword){
     return await bcrypt.compare(canidatePassword, this.password);
 };
