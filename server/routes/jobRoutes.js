@@ -47,12 +47,19 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Get jobs (optionally filter by owner)
+// Get jobs (filter by owner, optionally filter by other categories (can be added as needed))
 router.get('/', async (req, res) => {
   try {
-    const { owner } = req.query;
-    const filter = {};
-    if (owner) filter.owner = owner;
+    const { owner, status, company, role } = req.query;
+    if (!owner) {
+        return res.status(400).json({ error: 'Owner ID is required.' });
+    }
+    const filter = { owner: owner };
+
+    if (status) filter.status = status;
+    if (company) filter.company = new RegExp(company, 'i');
+    if (role) filter.role = new RegExp(role, 'i');
+
     const jobs = await Job.find(filter).sort({ createdAt: -1 });
     return res.json(jobs);
   } catch (err) {
@@ -63,7 +70,9 @@ router.get('/', async (req, res) => {
 // Update a job
 router.put('/:id', async (req, res) => {
   try {
-    const updated = await Job.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const { company, role, status, dueDate, tags, jobUrl, notes, salary } = req.body;
+    const updateData = { company, role, status, dueDate, tags, jobUrl, notes, salary };
+    const updated = await Job.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true });
     if (!updated) return res.status(404).json({ message: 'Job not found' });
     return res.json(updated);
   } catch (err) {
