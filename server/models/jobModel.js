@@ -23,6 +23,15 @@ const jobSchema = new mongoose.Schema({
     dueDate:{
         type: Date
     },
+    location: {
+        type: String,
+        trim: true
+    },
+    outcome: {
+        type: String,
+        enum: ['Pending', 'Accepted', 'Rejected'],
+        default: 'Pending'
+    },
     tags: [{type: String,trim: true }],
     owner:{
         type: mongoose.Schema.Types.ObjectId,

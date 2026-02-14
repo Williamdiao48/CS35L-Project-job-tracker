@@ -1,5 +1,7 @@
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
+import JobForm from "../components/JobForm";
+import JobList from "../components/JobList";
 
 export default function Dashboard() {
   return (
@@ -11,7 +13,16 @@ export default function Dashboard() {
 
         <div style={{ padding: "20px" }}>
           <h1>Dashboard</h1>
-          <p>This is the dashboard framework.</p>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 2fr',gap:20}}>
+            <div>
+              <h2>Add Job</h2>
+              <JobForm onCreated={() => { /* could refresh list via context or prop */ }} />
+            </div>
+            <div>
+              <h2>Jobs</h2>
+              <JobList />
+            </div>
+          </div>
         </div>
       </div>
     </div>
