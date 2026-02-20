@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export default function JobList() {
+export default function JobList({ refresh }) {
   const [jobs, setJobs] = useState([]);
 
   const fetchJobs = async () => {
@@ -13,26 +13,80 @@ export default function JobList() {
     }
   };
 
-  useEffect(() => { fetchJobs(); }, []);
+  useEffect(() => {
+    fetchJobs();
+  }, [refresh]);
+  
 
-  if (!jobs.length) return <p>No jobs yet.</p>;
-
+  if (!jobs.length) {
+    return (
+      <div style={{
+        padding: "20px",
+        textAlign: "center",
+        color: "#666",
+        border: "1px dashed #ccc",
+        borderRadius: 8
+      }}>
+        No jobs yet.
+      </div>
+    );
+  }
+  
   return (
-    <div style={{display:'grid',gap:12}}>
+    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       {jobs.map(job => (
-        <div key={job._id} style={{padding:12,border:'1px solid #ddd',borderRadius:6}}>
-          <div style={{display:'flex',justifyContent:'space-between'}}>
-            <strong>{job.company} — {job.role}</strong>
-            <span>{job.status} / {job.outcome}</span>
+        <div
+          key={job._id}
+          style={{
+            padding: 16,
+            border: "1px solid #e0e0e0",
+            borderRadius: 8,
+            background: "#fafafa",
+            boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+          }}
+        >
+          {/* Header row */}
+          <div style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: 8
+          }}>
+            <strong style={{ fontSize: 16 }}>
+              {job.company} — {job.role}
+            </strong>
+  
+            <span style={{
+              fontSize: 14,
+              padding: "2px 8px",
+              borderRadius: 4,
+              background: "#eee"
+            }}>
+              {job.status} / {job.outcome}
+            </span>
           </div>
-          <div style={{fontSize:12,color:'#555'}}>
-            <div>Location: {job.location || '—'}</div>
-            <div>Deadline: {job.dueDate ? new Date(job.dueDate).toLocaleDateString() : '—'}</div>
-            <div>Tags: {job.tags && job.tags.length ? job.tags.join(', ') : '—'}</div>
-            <div style={{marginTop:8}}>{job.notes}</div>
+  
+          {/* Details */}
+          <div style={{ fontSize: 13, color: "#555", lineHeight: 1.5 }}>
+            <div><strong>Location:</strong> {job.location || "—"}</div>
+            <div>
+              <strong>Deadline:</strong>{" "}
+              {job.dueDate ? new Date(job.dueDate).toLocaleDateString() : "—"}
+            </div>
+            <div>
+              <strong>Tags:</strong>{" "}
+              {Array.isArray(job.tags) && job.tags.length
+                ? job.tags.join(", ")
+                : "—"}
+            </div>
+  
+            {job.notes && (
+              <div style={{ marginTop: 8 }}>
+                <strong>Notes:</strong> {job.notes}
+              </div>
+            )}
           </div>
         </div>
       ))}
     </div>
-  );
+  ); 
 }
