@@ -27,6 +27,12 @@ export default function Register() {
       }
 
       alert("Registration successful!");
+
+      // Store token
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userId", data.user.id);
+      localStorage.setItem("username", data.user.username);
+
       navigate("/dashboard");
       
     } catch (err) {
@@ -48,26 +54,33 @@ export default function Register() {
           />
         </div>
 
-        <div>
+        <div style={{ marginTop: "1rem" }}>
           <label>Email:</label><br />
           <input
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
         </div>
 
-        <div>
+        <div style={{ marginTop: "1rem" }}>
           <label>Password:</label><br />
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
         </div>
 
-        <button type="submit">Create Account</button>
+        <button type="submit" style={{ marginTop: "1rem" }}>Create Account</button>
       </form>
+
+      <div style={{ marginTop: "1rem" }}>
+        <p>Already have an account? <a href="/login">Login here</a></p>
+      </div>
+
     </div>
   );
 }
