@@ -1,38 +1,39 @@
 import { useState } from "react";
 import DashboardLayout from "../components/DashboardLayout";
-import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import JobForm from "../components/JobForm";
 import JobList from "../components/JobList";
 
 export default function Dashboard() {
-  // NEW: this state increments whenever a job is created
   const [refreshFlag, setRefreshFlag] = useState(0);
+  const [showAddJobForm, setShowAddJobForm] = useState(false);
+
+  const handleAddJobClick = () => {
+    setShowAddJobForm(true);
+  };
 
   return (
     <DashboardLayout
-      sidebar={<Sidebar />}
-      navbar={<Navbar />}
+      navbar={<Navbar onAddJobClick={handleAddJobClick} />}
     >
-      <h1>Dashboard</h1>
+      <h1 className="dashboard-title">Dashboard</h1>
 
-      <div style={{ 
-        display: 'grid',
-        gridTemplateColumns: '1fr 2fr',
-        gap: 20,
-        marginTop: 20
-      }}>
+      <div className="jobs-container">
         <div>
-          <h2>Add Job</h2>
-
-          {/* When a job is created, increment refreshFlag */}
-          <JobForm onCreated={() => setRefreshFlag(f => f + 1)} />
+          <h2>{showAddJobForm ? "Add New Job" : "Quick Add"}</h2>
+          <JobForm onCreated={() => {
+            setRefreshFlag(f => f + 1);
+            setShowAddJobForm(false);
+          }} />
+          {!showAddJobForm && (
+            <p style={{ color: "#666", marginTop: "1rem", fontSize: "0.9em" }}>
+              Click "Add Job" in the top bar to add a new application.
+            </p>
+          )}
         </div>
 
         <div>
-          <h2>Jobs</h2>
-
-          {/* Pass refreshFlag to JobList */}
+          <h2>Your Job Applications</h2>
           <JobList refresh={refreshFlag} />
         </div>
       </div>
