@@ -1,4 +1,3 @@
-// @ts-nocheck
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
@@ -22,18 +21,20 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   }
-});
+})
 
-//hash password helper method
 userSchema.pre('save', async function () {
   if (!this.isModified('password')) return;
 
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+  } catch (error) {
+    throw error;  }
 });
 
-userSchema.methods.comparePassword = async function(canidatePassword){
-    return await bcrypt.compare(canidatePassword, this.password);
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  return await bcrypt.compare(candidatePassword, this.password);
 };
 
 const User = mongoose.model("User", userSchema);
