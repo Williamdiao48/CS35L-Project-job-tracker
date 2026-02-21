@@ -29,7 +29,8 @@ router.post("/register", async(req, res)=>{
         user: { id: user._id, username: user.username, email: user.email }
     });
     } catch(err){
-        return res.status(400).json({ error: "Email or Username already exists" });
+        console.error("REGISTER ERROR:", err);
+        return res.status(400).json({ error: err.message });
     }});
 
 // Login Route
