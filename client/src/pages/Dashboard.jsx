@@ -1,30 +1,42 @@
-import Sidebar from "../components/Sidebar";
+import { useState } from "react";
+import DashboardLayout from "../components/DashboardLayout";
 import Navbar from "../components/Navbar";
 import JobForm from "../components/JobForm";
 import JobList from "../components/JobList";
 
 export default function Dashboard() {
+  const [refreshFlag, setRefreshFlag] = useState(0);
+  const [showAddJobForm, setShowAddJobForm] = useState(false);
+
+  const handleAddJobClick = () => {
+    setShowAddJobForm(true);
+  };
+
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
-      <Sidebar />
+    <DashboardLayout
+      navbar={<Navbar onAddJobClick={handleAddJobClick} />}
+    >
+      <h1 className="dashboard-title">Dashboard</h1>
 
-      <div style={{ flex: 1 }}>
-        <Navbar />
+      <div className="jobs-container">
+        <div>
+          <h2>{showAddJobForm ? "Add New Job" : "Quick Add"}</h2>
+          <JobForm onCreated={() => {
+            setRefreshFlag(f => f + 1);
+            setShowAddJobForm(false);
+          }} />
+          {!showAddJobForm && (
+            <p style={{ color: "#666", marginTop: "1rem", fontSize: "0.9em" }}>
+              Click "Add Job" in the top bar to add a new application.
+            </p>
+          )}
+        </div>
 
-        <div style={{ padding: "20px" }}>
-          <h1>Dashboard</h1>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 2fr',gap:20}}>
-            <div>
-              <h2>Add Job</h2>
-              <JobForm onCreated={() => { /* could refresh list via context or prop */ }} />
-            </div>
-            <div>
-              <h2>Jobs</h2>
-              <JobList />
-            </div>
-          </div>
+        <div>
+          <h2>Your Job Applications</h2>
+          <JobList refresh={refreshFlag} />
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
