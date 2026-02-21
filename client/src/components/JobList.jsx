@@ -120,23 +120,19 @@ const styles = {
   }
 };
 
-export default function JobList({ refresh }) {
-  const [jobs, setJobs] = useState([]);
+export default function JobList({  jobs  }) {
   const [hoveredId, setHoveredId] = useState(null);
-
-  const fetchJobs = async () => {
-    try {
-      const res = await fetch('/api/jobs');
-      const data = await res.json();
-      setJobs(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  useEffect(() => {
-    fetchJobs();
-  }, [refresh]);
+  if (jobs.length === 0) {
+    return (
+      <div style={styles.emptyState}>
+        <div style={{ fontSize: "3em", marginBottom: "1rem" }}>📋</div>
+        <div style={styles.emptyText}>No job applications yet</div>
+        <div style={{ fontSize: "0.9em", color: "#999", marginTop: "0.5rem" }}>
+          Click "Add Job" to get started
+        </div>
+      </div>
+    );
+  }  
 
   const getStatusStyle = (status) => {
     switch(status) {
@@ -153,17 +149,6 @@ export default function JobList({ refresh }) {
     }
   };
 
-  if (!jobs.length) {
-    return (
-      <div style={styles.emptyState}>
-        <div style={{ fontSize: "3em", marginBottom: "1rem" }}>📋</div>
-        <div style={styles.emptyText}>No job applications yet</div>
-        <div style={{ fontSize: "0.9em", color: "#999", marginTop: "0.5rem" }}>
-          Click "Add Job" to get started
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div style={styles.container}>

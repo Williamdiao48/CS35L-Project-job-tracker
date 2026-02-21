@@ -1,12 +1,40 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import DashboardLayout from "../components/DashboardLayout";
 import Navbar from "../components/Navbar";
 import JobForm from "../components/JobForm";
 import JobList from "../components/JobList";
 
 export default function Dashboard() {
-  const [refreshFlag, setRefreshFlag] = useState(0);
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showAddJobForm, setShowAddJobForm] = useState(false);
+
+
+  const fetchJobs = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const res = await fetch('http://localhost:5001/api/jobs', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setJobs(data);
+      }
+    } catch (err) {
+      console.error("Fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchJobs();
+  }, [fetchJobs]);
 
   const handleAddJobClick = () => {
     setShowAddJobForm(true);
@@ -22,7 +50,7 @@ export default function Dashboard() {
         <div>
           <h2>{showAddJobForm ? "Add New Job" : "Quick Add"}</h2>
           <JobForm onCreated={() => {
-            setRefreshFlag(f => f + 1);
+            fetchJobs();
             setShowAddJobForm(false);
           }} />
           {!showAddJobForm && (
@@ -34,8 +62,11 @@ export default function Dashboard() {
 
         <div>
           <h2>Your Job Applications</h2>
-          <JobList refresh={refreshFlag} />
-        </div>
+          {loading ? (
+            <p>Loading your jobs...</p>
+          ) : (
+            <JobList jobs={jobs} onJobDeleted={fetchJobs} />
+          )}        </div>
       </div>
     </DashboardLayout>
   );

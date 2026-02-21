@@ -1,10 +1,11 @@
 import express from 'express';
 import Job from '../models/jobModel.js';
+import { authMiddleware } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // Create a new job
-router.post('/', async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   try {
     const {
       company,
@@ -15,13 +16,15 @@ router.post('/', async (req, res) => {
       location,
       outcome,
       tags,
-      owner,
       jobUrl,
       notes,
       salary
     } = req.body;
 
-    if (!company || !role || !owner) {
+
+    const ownerId = req.user.id || req.user._id;
+
+    if (!company || !role || !ownerId) {
       return res.status(400).json({ message: 'company, role and owner are required' });
     }
 
@@ -34,7 +37,7 @@ router.post('/', async (req, res) => {
       location,
       outcome,
       tags,
-      owner,
+      owner: ownerId,
       jobUrl,
       notes,
       salary
@@ -47,20 +50,49 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Get jobs (filter by owner, optionally filter by other categories (can be added as needed))
-router.get('/', async (req, res) => {
+
+router.get('/', authMiddleware, async (req, res) => {
+  console.log("--- GET Jobs Route Hit ---");
+  
   try {
-    const { owner, status, company, role } = req.query;
+    // Check if req.user exists from the middleware
+    if (!req.user) {
+      console.error("Error: req.user is missing. Check authMiddleware.");
+      return res.status(401).json({ message: "Not authorized, no user data" });
+    }
+
+    // Try to find jobs
+    const jobs = await Job.find({ owner: req.user.id || req.user._id });
+    
+    console.log(`Success: Found ${jobs.length} jobs for user ${req.user.id || req.user._id}`);
+    res.json(jobs);
+
+  } catch (error) {
+    // THIS prints the actual error to your terminal (Node console)
+    console.error("DETAILED BACKEND ERROR:", error.message);
+    res.status(500).json({ 
+      message: "Server Error", 
+      details: error.message 
+    });
+  }
+});
+
+// Get jobs (filter by owner, optionally filter by other categories (can be added as needed))
+/*router.get('/', authMiddleware, async (req, res) => {
+  try {
+    const ownerId = req.user.id || req.user._id;
+    const filter = { owner: ownerId };
+    const { status, company, role } = req.query;
     if (!owner) {
         return res.status(400).json({ error: 'Owner ID is required.' });
     }
-    const filter = { owner: owner };
-
     if (status) filter.status = status;
     if (company) filter.company = new RegExp(company, 'i');
     if (role) filter.role = new RegExp(role, 'i');
 
-    const jobs = await Job.find(filter).sort({ createdAt: -1 });
+    //const jobs = await Job.find(filter).sort({ createdAt: -1 });
+    console.log(`Database found ${jobs.length} jobs for this user`);
+    const jobs = await Job.find({ owner: req.user.id || req.user._id });
     return res.json(jobs);
   } catch (err) {
     return res.status(500).json({ error: 'Server error' });
@@ -78,7 +110,7 @@ router.put('/:id', async (req, res) => {
   } catch (err) {
     return res.status(500).json({ error: 'Server error' });
   }
-});
+});*/
 
 // Delete a job
 router.delete('/:id', async (req, res) => {

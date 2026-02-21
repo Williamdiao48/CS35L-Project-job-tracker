@@ -59,6 +59,13 @@ export default function JobForm({ onCreated }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert("Error: You must be logged in to add a job.");
+      setLoading(false);
+      return;
+    }
+
     const payload = {
       ...form,
       tags: form.tags
@@ -68,14 +75,20 @@ export default function JobForm({ onCreated }) {
     };
 
     try {
-      const res = await fetch('/api/jobs', {
+      const res = await fetch('http://localhost:5001/api/jobs', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(payload)
       });
 
-      if (!res.ok) throw new Error('Failed to create job');
-
+      if (!res.ok) {
+        const errorData = await res.json(); // Capture the server's explanation
+        console.log("Server Error Data:", errorData);
+        throw new Error(errorData.error || errorData.message || 'Failed to create job');
+      }
       const job = await res.json();
 
       setForm({
@@ -88,16 +101,16 @@ export default function JobForm({ onCreated }) {
         tags: '',
         jobUrl: '',
         notes: '',
-        salary: '',
-        owner: ''
+        salary: ''
       });
 
       if (onCreated) onCreated(job);
 
     } catch (err) {
       console.error(err);
-      alert('Could not create job');
-    }
+      console.error("FULL ERROR OBJECT:", err); // Look at this in the browser console!
+      alert(`Error: ${err.message}`); // This will tell you if it's a "TypeError" or something else
+      }
   };
 
   return (
@@ -211,16 +224,6 @@ export default function JobForm({ onCreated }) {
         />
       </div>
 
-      <div style={formStyles.inputGroup}>
-        <label style={formStyles.label}>Owner (User ID)</label>
-        <input
-          style={formStyles.input}
-          name="owner"
-          placeholder="Your user ID"
-          value={form.owner}
-          onChange={handleChange}
-        />
-      </div>
 
       <div style={formStyles.inputGroup}>
         <label style={formStyles.label}>Notes</label>
