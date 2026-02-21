@@ -1,5 +1,6 @@
 import express from "express";
 import User from "../models/userModel.js";
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -9,7 +10,7 @@ router.post("/register", async(req, res)=>{
     if(!username||!password||!email){
         return res.status(400).json({message: "Please provide all requested informatino"});
     }
-    const user = User.new({username, password, email});
+    const user = new User({ username, password, email });
     await user.save();
     res.status(201).json({ message: "User registered successfully!" });
     } catch(err){
@@ -30,5 +31,7 @@ router.post("/login", async(req,res)=>{
         return res.status(500).json({ error: "Server Error"});
     }
 });
+
+
 
 export default router;
