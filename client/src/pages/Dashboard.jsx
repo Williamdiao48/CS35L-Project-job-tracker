@@ -6,6 +6,7 @@ import JobList from "../components/JobList";
 
 export default function Dashboard() {
   const [jobs, setJobs] = useState([]);
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [showAddJobForm, setShowAddJobForm] = useState(false);
 
@@ -15,7 +16,11 @@ export default function Dashboard() {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const res = await fetch('http://localhost:5001/api/jobs', {
+      const url = search
+        ? `http://localhost:5001/api/jobs?search=${encodeURIComponent(search)}`
+        : 'http://localhost:5001/api/jobs';
+
+      const res = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -30,7 +35,7 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [search]);
 
   useEffect(() => {
     fetchJobs();
@@ -62,10 +67,23 @@ export default function Dashboard() {
 
         <div>
           <h2>Your Job Applications</h2>
+          <input
+            type="text"
+            placeholder="Search jobs..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "0.6rem",
+              marginBottom: "1rem",
+              borderRadius: "6px",
+              border: "1px solid #ccc"
+            }}
+          />
           {loading ? (
             <p>Loading your jobs...</p>
           ) : (
-            <JobList jobs={jobs} onJobDeleted={fetchJobs} />
+            <JobList jobs={jobs} search={search} onJobDeleted={fetchJobs} />
           )}        </div>
       </div>
     </DashboardLayout>

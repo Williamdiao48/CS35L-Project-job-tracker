@@ -61,9 +61,30 @@ router.get('/', authMiddleware, async (req, res) => {
       return res.status(401).json({ message: "Not authorized, no user data" });
     }
 
-    // Try to find jobs
-    const jobs = await Job.find({ owner: req.user.id || req.user._id });
+    // search mongoDB for search bar requests
+    const userId = req.user.id || req.user._id;
+    const search = req.query.search;
     
+    let query = { owner: userId };
+
+    if (search) {
+      query = {
+        owner: userId,
+        $or: [
+          { company: { $regex: search, $options: 'i' } },
+          { role: { $regex: search, $options: 'i' } },
+          { location: { $regex: search, $options: 'i' } },
+          { status: { $regex: search, $options: 'i' } },
+          { outcome: { $regex: search, $options: 'i' } },
+          { tags: { $regex: search, $options: 'i' } },
+          { notes: { $regex: search, $options: 'i' } }
+        ]
+      };
+    }
+    
+    const jobs = await Job.find(query);
+
+
     console.log(`Success: Found ${jobs.length} jobs for user ${req.user.id || req.user._id}`);
     res.json(jobs);
 

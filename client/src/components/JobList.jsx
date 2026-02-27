@@ -120,9 +120,22 @@ const styles = {
   }
 };
 
-export default function JobList({  jobs  }) {
+export default function JobList({  jobs, search  }) {
   const [hoveredId, setHoveredId] = useState(null);
   if (jobs.length === 0) {
+    if (search && search.trim() !== "") {
+      return (
+        <div style={styles.emptyState}>
+          <div style={{ fontSize: "3em", marginBottom: "1rem" }}>🔍</div>
+          <div style={styles.emptyText}>
+            No jobs found for "{search}"
+          </div>
+          <div style={{ fontSize: "0.9em", color: "#999", marginTop: "0.5rem" }}>
+            Try a different keyword.
+          </div>
+        </div>
+      );
+    }
     return (
       <div style={styles.emptyState}>
         <div style={{ fontSize: "3em", marginBottom: "1rem" }}>📋</div>
