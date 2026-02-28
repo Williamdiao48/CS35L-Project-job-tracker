@@ -64,8 +64,13 @@ router.get('/', authMiddleware, async (req, res) => {
     // search mongoDB for search bar requests
     const userId = req.user.id || req.user._id;
     const search = req.query.search;
+    const status = req.query.status;
+    const sort = req.query.sort;
     
     let query = { owner: userId };
+    if (status) { 
+      query.status = status; 
+    }
 
     if (search) {
       query = {
@@ -82,7 +87,17 @@ router.get('/', authMiddleware, async (req, res) => {
       };
     }
     
-    const jobs = await Job.find(query);
+    let sortOption = { createdAt: -1 }; // default newest
+
+    if (sort === "oldest") {
+      sortOption = { createdAt: 1 };
+    } else if (sort === "companyAZ") {
+      sortOption = { company: 1 };
+    } else if (sort === "companyZA") {
+      sortOption = { company: -1 };
+    }
+
+    const jobs = await Job.find(query).sort(sortOption);
 
 
     console.log(`Success: Found ${jobs.length} jobs for user ${req.user.id || req.user._id}`);

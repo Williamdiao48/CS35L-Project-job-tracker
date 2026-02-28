@@ -9,16 +9,29 @@ export default function Dashboard() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [showAddJobForm, setShowAddJobForm] = useState(false);
-
+  const [statusFilter, setStatusFilter] = useState("");
+  const [sortOption, setSortOption] = useState("newest"); 
 
   const fetchJobs = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      const url = search
-        ? `http://localhost:5001/api/jobs?search=${encodeURIComponent(search)}`
-        : 'http://localhost:5001/api/jobs';
+      const params = new URLSearchParams();
+
+      if (search) {
+        params.append("search", search);
+      }
+
+      if (statusFilter) {
+        params.append("status", statusFilter);
+      }
+
+      if (sortOption) {
+        params.append("sort", sortOption);
+      }
+
+      const url = `http://localhost:5001/api/jobs?${params.toString()}`;
 
       const res = await fetch(url, {
         headers: {
@@ -35,11 +48,12 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, [search]);
+  }, [search, statusFilter, sortOption]);
 
   useEffect(() => {
     fetchJobs();
   }, [fetchJobs]);
+
 
   const handleAddJobClick = () => {
     setShowAddJobForm(true);
@@ -67,6 +81,49 @@ export default function Dashboard() {
 
         <div>
           <h2>Your Job Applications</h2>
+          <div style={{ 
+            display: "flex", 
+            gap: "1rem", 
+            marginBottom: "1rem",
+            flexWrap: "wrap"
+          }}>
+
+            {/* Status Filter */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={{
+                padding: "0.5rem",
+                borderRadius: "6px",
+                border: "1px solid #ccc"
+              }}
+            >
+              <option value="">All Statuses</option>
+              <option value="Interested">Interested</option>
+              <option value="Applied">Applied</option>
+              <option value="Interviewing">Interviewing</option>
+              <option value="Offer">Offer</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+
+            {/* Sort Option */}
+            <select
+              value={sortOption}
+              onChange={(e) => setSortOption(e.target.value)}
+              style={{
+                padding: "0.5rem",
+                borderRadius: "6px",
+                border: "1px solid #ccc"
+              }}
+            >
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="companyAZ">Company A–Z</option>
+              <option value="companyZA">Company Z–A</option>
+            </select>
+
+          </div>
+
           <input
             type="text"
             placeholder="Search jobs..."
@@ -83,7 +140,12 @@ export default function Dashboard() {
           {loading ? (
             <p>Loading your jobs...</p>
           ) : (
-            <JobList jobs={jobs} search={search} onJobDeleted={fetchJobs} />
+            <JobList 
+            jobs={jobs} 
+            search={search}
+            statusFilter={statusFilter}
+            onJobDeleted={fetchJobs} 
+            />
           )}        </div>
       </div>
     </DashboardLayout>
