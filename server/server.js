@@ -12,8 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Load .env from parent directory
-// dotenv.config({ path: join(__dirname, '..', '.env') });
-dotenv.config();
+dotenv.config({path: '../.env'});
 const app = express();
 
 // Middleware setup

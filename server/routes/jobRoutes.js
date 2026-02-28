@@ -1,6 +1,7 @@
 import express from 'express';
 import Job from '../models/jobModel.js';
 import { authMiddleware } from '../middleware/authMiddleware.js';
+import { discoverJobs } from '../controllers/jobController.js';
 
 const router = express.Router();
 
@@ -158,5 +159,9 @@ router.delete('/:id', async (req, res) => {
     return res.status(500).json({ error: 'Server error' });
   }
 });
+
+// Get Jobs from APIs Route
+// Accessible through GET /api/jobs/discover?title=Engineer&location=remote
+router.get('/discover', authMiddleware, discoverJobs);
 
 export default router;
