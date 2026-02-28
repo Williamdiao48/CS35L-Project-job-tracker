@@ -3,6 +3,7 @@ import DashboardLayout from "../components/DashboardLayout";
 import Navbar from "../components/Navbar";
 import JobForm from "../components/JobForm";
 import JobList from "../components/JobList";
+import JobMarketplace from '../components/JobMarketplace';
 
 export default function Dashboard() {
   const [jobs, setJobs] = useState([]);
@@ -147,6 +148,7 @@ export default function Dashboard() {
             onJobDeleted={fetchJobs} 
             />
           )}        </div>
+          <JobMarketplace />
       </div>
     </DashboardLayout>
   );
