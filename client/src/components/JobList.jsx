@@ -4,124 +4,138 @@ const styles = {
   container: {
     display: "flex",
     flexDirection: "column",
-    gap: "1.2rem"
+    gap: "1.5rem"
   },
   emptyState: {
-    padding: "3rem 2rem",
+    padding: "4rem 2rem",
     textAlign: "center",
-    color: "#666",
-    border: "2px dashed #ddd",
-    borderRadius: "8px",
-    backgroundColor: "#f9f9f9"
+    color: "#6b7280",
+    border: "2px dashed #e5e7eb",
+    borderRadius: "12px",
+    backgroundColor: "#f9fafb"
   },
   emptyText: {
-    fontSize: "1.1em",
-    margin: "0.5rem 0"
+    fontSize: "1.2em",
+    fontWeight: "600",
+    margin: "0.5rem 0",
+    color: "#374151"
   },
   jobCard: {
-    padding: "1.5rem",
-    border: "1px solid #e0e0e0",
-    borderRadius: "8px",
+    padding: "2rem",
+    border: "1px solid #e5e7eb",
+    borderRadius: "12px",
     background: "#ffffff",
-    boxShadow: "0 2px 4px rgba(0,0,0,0.06)",
-    transition: "all 0.2s ease",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+    transition: "all 0.3s ease",
     cursor: "pointer"
   },
   jobCardHover: {
-    boxShadow: "0 4px 8px rgba(26, 110, 214, 0.1)",
-    borderColor: "#1a6ed6"
+    boxShadow: "0 8px 16px rgba(26, 110, 214, 0.12)",
+    borderColor: "#1a6ed6",
+    transform: "translateY(-2px)"
   },
   jobHeader: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "start",
-    marginBottom: "1rem",
+    marginBottom: "1.5rem",
     gap: "1rem"
   },
   jobTitle: {
-    fontSize: "1.2em",
+    fontSize: "1.3em",
     fontWeight: "600",
     color: "#000000",
-    margin: "0"
+    margin: "0",
+    lineHeight: "1.4"
   },
   jobCompany: {
-    fontSize: "1em",
+    fontSize: "1.1em",
     color: "#1a6ed6",
-    fontWeight: "500"
+    fontWeight: "700"
   },
   jobRole: {
-    fontSize: "1em",
-    color: "#555"
+    fontSize: "0.95em",
+    color: "#6b7280"
   },
   statusBadge: {
     display: "inline-flex",
     gap: "0.5rem",
-    padding: "0.5rem 1rem",
-    borderRadius: "20px",
-    fontSize: "0.85em",
-    fontWeight: "500",
+    padding: "0.6rem 1.2rem",
+    borderRadius: "8px",
+    fontSize: "0.9em",
+    fontWeight: "600",
     whiteSpace: "nowrap",
     flexShrink: 0
   },
   statusApplied: {
-    background: "#E3F2FD",
+    background: "#dbeafe",
     color: "#1a6ed6"
   },
   statusInterviewing: {
-    background: "#FFF3E0",
-    color: "#F57C00"
+    background: "#fef3c7",
+    color: "#b45309"
   },
   statusOffer: {
-    background: "#E8F5E9",
-    color: "#388E3C"
+    background: "#dcfce7",
+    color: "#15803d"
   },
   statusRejected: {
-    background: "#FFEBEE",
-    color: "#D32F2F"
+    background: "#fee2e2",
+    color: "#dc2626"
   },
   jobDetails: {
     fontSize: "0.95em",
-    color: "#555",
-    lineHeight: "1.7"
+    color: "#6b7280",
+    lineHeight: "1.8"
   },
   detailRow: {
     display: "flex",
-    gap: "0.5rem",
-    marginBottom: "0.5rem"
+    gap: "0.75rem",
+    marginBottom: "1rem",
+    alignItems: "flex-start"
   },
   detailLabel: {
-    fontWeight: "600",
-    color: "#000",
-    minWidth: "120px"
+    fontWeight: "700",
+    color: "#374151",
+    minWidth: "120px",
+    flex: "0 0 auto"
   },
   detailValue: {
-    color: "#555"
+    color: "#6b7280"
   },
   tags: {
     display: "flex",
     flexWrap: "wrap",
-    gap: "0.5rem",
-    marginTop: "0.75rem"
+    gap: "0.65rem",
+    marginTop: "1rem"
   },
   tag: {
     display: "inline-block",
-    padding: "0.35rem 0.8rem",
-    background: "#f0f0f0",
-    color: "#333",
-    borderRadius: "16px",
-    fontSize: "0.85em"
+    padding: "0.5rem 1rem",
+    background: "#f3f4f6",
+    color: "#374151",
+    borderRadius: "20px",
+    fontSize: "0.85em",
+    fontWeight: "500",
+    border: "1px solid #e5e7eb"
   },
   notes: {
-    marginTop: "1rem",
-    padding: "1rem",
-    background: "#fafafa",
-    borderLeft: "3px solid #1a6ed6",
-    borderRadius: "4px"
+    marginTop: "1.5rem",
+    padding: "1.25rem",
+    background: "#eff6ff",
+    borderLeft: "4px solid #1a6ed6",
+    borderRadius: "8px"
+  },
+  notesText: {
+    color: "#1e40af",
+    marginTop: "0.5rem",
+    lineHeight: "1.6"
   }
 };
 
 export default function JobList({  jobs, search, statusFilter  }) {
   const [hoveredId, setHoveredId] = useState(null);
+  
   if (jobs.length === 0) {
     if (
       (search && search.trim() !== "") ||
@@ -131,10 +145,10 @@ export default function JobList({  jobs, search, statusFilter  }) {
         <div style={styles.emptyState}>
           <div style={{ fontSize: "3em", marginBottom: "1rem" }}>🔎</div>
           <div style={styles.emptyText}>
-            No jobs match your current filters.
+            No jobs match your filters
           </div>
-          <div style={{ fontSize: "0.9em", color: "#999", marginTop: "0.5rem" }}>
-            Try adjusting your search or filters.
+          <div style={{ fontSize: "0.9em", color: "#9ca3af", marginTop: "0.75rem" }}>
+            Try adjusting your search or filter criteria
           </div>
         </div>
       );
@@ -143,8 +157,8 @@ export default function JobList({  jobs, search, statusFilter  }) {
       <div style={styles.emptyState}>
         <div style={{ fontSize: "3em", marginBottom: "1rem" }}>📋</div>
         <div style={styles.emptyText}>No job applications yet</div>
-        <div style={{ fontSize: "0.9em", color: "#999", marginTop: "0.5rem" }}>
-          Click "Add Job" to get started
+        <div style={{ fontSize: "0.9em", color: "#9ca3af", marginTop: "0.75rem" }}>
+          Click the "+ Add Job" button to get started
         </div>
       </div>
     );
@@ -161,10 +175,9 @@ export default function JobList({  jobs, search, statusFilter  }) {
       case 'Rejected':
         return styles.statusRejected;
       default:
-        return { background: "#F5F5F5", color: "#666" };
+        return { background: "#f3f4f6", color: "#6b7280" };
     }
   };
-
 
   return (
     <div style={styles.container}>
@@ -179,10 +192,10 @@ export default function JobList({  jobs, search, statusFilter  }) {
           onMouseLeave={() => setHoveredId(null)}
         >
           <div style={styles.jobHeader}>
-            <div>
+            <div style={{ flex: 1 }}>
               <h3 style={styles.jobTitle}>
                 <span style={styles.jobCompany}>{job.company}</span>
-                <span style={{ color: "#999", fontWeight: "400" }}> — </span>
+                <span style={{ color: "#d1d5db", fontWeight: "400" }}> • </span>
                 <span style={styles.jobRole}>{job.role}</span>
               </h3>
             </div>
@@ -194,14 +207,14 @@ export default function JobList({  jobs, search, statusFilter  }) {
           <div style={styles.jobDetails}>
             {job.location && (
               <div style={styles.detailRow}>
-                <span style={styles.detailLabel}>📍 Location:</span>
+                <span style={styles.detailLabel}>📍 Location</span>
                 <span style={styles.detailValue}>{job.location}</span>
               </div>
             )}
 
             {job.dueDate && (
               <div style={styles.detailRow}>
-                <span style={styles.detailLabel}>📅 Deadline:</span>
+                <span style={styles.detailLabel}>📅 Deadline</span>
                 <span style={styles.detailValue}>
                   {new Date(job.dueDate).toLocaleDateString('en-US', {
                     month: 'short',
@@ -214,22 +227,22 @@ export default function JobList({  jobs, search, statusFilter  }) {
 
             {job.salary && (
               <div style={styles.detailRow}>
-                <span style={styles.detailLabel}>💰 Salary:</span>
+                <span style={styles.detailLabel}>💰 Salary</span>
                 <span style={styles.detailValue}>{job.salary}</span>
               </div>
             )}
 
             {job.outcome && job.outcome !== 'Pending' && (
               <div style={styles.detailRow}>
-                <span style={styles.detailLabel}>📊 Outcome:</span>
+                <span style={styles.detailLabel}>📊 Outcome</span>
                 <span style={styles.detailValue}>{job.outcome}</span>
               </div>
             )}
 
             {job.jobUrl && (
               <div style={styles.detailRow}>
-                <span style={styles.detailLabel}>🔗 URL:</span>
-                <a href={job.jobUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#1a6ed6" }}>
+                <span style={styles.detailLabel}>🔗 Link</span>
+                <a href={job.jobUrl} target="_blank" rel="noopener noreferrer" style={{ color: "#1a6ed6", fontWeight: "500" }}>
                   View Job Posting
                 </a>
               </div>
@@ -245,8 +258,8 @@ export default function JobList({  jobs, search, statusFilter  }) {
 
             {job.notes && (
               <div style={styles.notes}>
-                <strong>Notes:</strong>
-                <div style={{ marginTop: "0.5rem", color: "#666" }}>{job.notes}</div>
+                <strong style={{ color: "#1e40af" }}>Notes</strong>
+                <div style={styles.notesText}>{job.notes}</div>
               </div>
             )}
           </div>

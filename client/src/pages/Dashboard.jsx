@@ -55,9 +55,34 @@ export default function Dashboard() {
     fetchJobs();
   }, [fetchJobs]);
 
-
   const handleAddJobClick = () => {
     setShowAddJobForm(true);
+  };
+
+  const filterSelectStyle = {
+    padding: "0.75rem 1rem",
+    borderRadius: "8px",
+    border: "1.5px solid #e5e7eb",
+    fontSize: "0.95em",
+    fontFamily: "inherit",
+    backgroundColor: "#ffffff",
+    color: "#000000",
+    cursor: "pointer",
+    transition: "all 0.25s ease",
+    minWidth: "150px"
+  };
+
+  const searchInputStyle = {
+    width: "100%",
+    padding: "0.75rem 1rem",
+    marginBottom: "1.5rem",
+    borderRadius: "8px",
+    border: "1.5px solid #e5e7eb",
+    fontSize: "0.95em",
+    fontFamily: "inherit",
+    backgroundColor: "#ffffff",
+    color: "#000000",
+    transition: "all 0.25s ease"
   };
 
   return (
@@ -68,14 +93,14 @@ export default function Dashboard() {
 
       <div className="jobs-container">
         <div>
-          <h2>{showAddJobForm ? "Add New Job" : "Quick Add"}</h2>
+          <h2>{showAddJobForm ? "Adding New Job" : "Quick Add Job"}</h2>
           <JobForm onCreated={() => {
             fetchJobs();
             setShowAddJobForm(false);
           }} />
           {!showAddJobForm && (
-            <p style={{ color: "#666", marginTop: "1rem", fontSize: "0.9em" }}>
-              Click "Add Job" in the top bar to add a new application.
+            <p style={{ color: "#6b7280", marginTop: "1.5rem", fontSize: "0.9em", fontWeight: "500" }}>
+              Click the "+ Add Job" button in the top bar to add a new application.
             </p>
           )}
         </div>
@@ -85,7 +110,7 @@ export default function Dashboard() {
           <div style={{ 
             display: "flex", 
             gap: "1rem", 
-            marginBottom: "1rem",
+            marginBottom: "1.5rem",
             flexWrap: "wrap"
           }}>
 
@@ -93,11 +118,15 @@ export default function Dashboard() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              style={{
-                padding: "0.5rem",
-                borderRadius: "6px",
-                border: "1px solid #ccc"
+              onFocus={(e) => {
+                e.target.style.borderColor = "#1a6ed6";
+                e.target.style.boxShadow = "0 0 0 4px rgba(26, 110, 214, 0.1)";
               }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "#e5e7eb";
+                e.target.style.boxShadow = "none";
+              }}
+              style={filterSelectStyle}
             >
               <option value="">All Statuses</option>
               <option value="Interested">Interested</option>
@@ -111,11 +140,15 @@ export default function Dashboard() {
             <select
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value)}
-              style={{
-                padding: "0.5rem",
-                borderRadius: "6px",
-                border: "1px solid #ccc"
+              onFocus={(e) => {
+                e.target.style.borderColor = "#1a6ed6";
+                e.target.style.boxShadow = "0 0 0 4px rgba(26, 110, 214, 0.1)";
               }}
+              onBlur={(e) => {
+                e.target.style.borderColor = "#e5e7eb";
+                e.target.style.boxShadow = "none";
+              }}
+              style={filterSelectStyle}
             >
               <option value="newest">Newest First</option>
               <option value="oldest">Oldest First</option>
@@ -127,28 +160,36 @@ export default function Dashboard() {
 
           <input
             type="text"
-            placeholder="Search jobs..."
+            placeholder="Search jobs by company, role, or location..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "0.6rem",
-              marginBottom: "1rem",
-              borderRadius: "6px",
-              border: "1px solid #ccc"
+            onFocus={(e) => {
+              e.target.style.borderColor = "#1a6ed6";
+              e.target.style.boxShadow = "0 0 0 4px rgba(26, 110, 214, 0.1)";
             }}
+            onBlur={(e) => {
+              e.target.style.borderColor = "#e5e7eb";
+              e.target.style.boxShadow = "none";
+            }}
+            style={searchInputStyle}
           />
           {loading ? (
-            <p>Loading your jobs...</p>
+            <div style={{ 
+              padding: "2rem",
+              textAlign: "center",
+              color: "#6b7280"
+            }}>
+              <p>Loading your job applications...</p>
+            </div>
           ) : (
             <JobList 
-            jobs={jobs} 
-            search={search}
-            statusFilter={statusFilter}
-            onJobDeleted={fetchJobs} 
+              jobs={jobs} 
+              search={search}
+              statusFilter={statusFilter}
+              onJobDeleted={fetchJobs} 
             />
-          )}        </div>
-          <JobMarketplace />
+          )}
+        </div>
       </div>
     </DashboardLayout>
   );

@@ -3,36 +3,48 @@ import { useState } from 'react';
 const formStyles = {
   form: {
     display: 'grid',
-    gap: '1rem'
+    gap: '1.5rem'
   },
   inputGroup: {
     display: 'grid',
-    gap: '0.5rem'
+    gap: '0.65rem'
   },
   label: {
-    fontWeight: '500',
+    fontWeight: '600',
     color: '#000000',
-    fontSize: '0.95em'
+    fontSize: '0.95em',
+    display: 'block'
   },
   input: {
-    padding: '0.75rem',
-    border: '1px solid #ddd',
-    borderRadius: '6px',
+    padding: '0.75rem 1rem',
+    border: '1.5px solid #e5e7eb',
+    borderRadius: '8px',
     fontSize: '1em',
     fontFamily: 'inherit',
-    transition: 'all 0.2s ease'
+    color: '#000000',
+    backgroundColor: '#ffffff',
+    transition: 'all 0.25s ease',
+    width: '100%',
+    boxSizing: 'border-box'
+  },
+  inputFocus: {
+    borderColor: '#1a6ed6',
+    boxShadow: '0 0 0 4px rgba(26, 110, 214, 0.1)',
+    outline: 'none'
   },
   submitButton: {
     padding: '0.85rem 1.5rem',
     background: '#1a6ed6',
     color: '#ffffff',
     border: 'none',
-    borderRadius: '6px',
+    borderRadius: '8px',
     fontSize: '1em',
     fontWeight: '600',
     cursor: 'pointer',
-    marginTop: '0.5rem',
-    transition: 'all 0.2s ease'
+    marginTop: '1rem',
+    transition: 'all 0.3s ease',
+    width: '100%',
+    boxSizing: 'border-box'
   }
 };
 
@@ -51,6 +63,8 @@ export default function JobForm({ onCreated }) {
     owner: ''
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((s) => ({ ...s, [name]: value }));
@@ -58,6 +72,7 @@ export default function JobForm({ onCreated }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     const token = localStorage.getItem('token');
     if (!token) {
@@ -85,8 +100,7 @@ export default function JobForm({ onCreated }) {
       });
 
       if (!res.ok) {
-        const errorData = await res.json(); // Capture the server's explanation
-        console.log("Server Error Data:", errorData);
+        const errorData = await res.json();
         throw new Error(errorData.error || errorData.message || 'Failed to create job');
       }
       const job = await res.json();
@@ -108,9 +122,10 @@ export default function JobForm({ onCreated }) {
 
     } catch (err) {
       console.error(err);
-      console.error("FULL ERROR OBJECT:", err); // Look at this in the browser console!
-      alert(`Error: ${err.message}`); // This will tell you if it's a "TypeError" or something else
-      }
+      alert(`Error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -123,6 +138,8 @@ export default function JobForm({ onCreated }) {
           placeholder="Enter company name"
           value={form.company}
           onChange={handleChange}
+          onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
+          onBlur={(e) => e.target.style.boxShadow = 'none'}
           required
         />
       </div>
@@ -135,6 +152,8 @@ export default function JobForm({ onCreated }) {
           placeholder="e.g., Software Engineer"
           value={form.role}
           onChange={handleChange}
+          onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
+          onBlur={(e) => e.target.style.boxShadow = 'none'}
           required
         />
       </div>
@@ -146,6 +165,8 @@ export default function JobForm({ onCreated }) {
           name="status" 
           value={form.status} 
           onChange={handleChange}
+          onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
+          onBlur={(e) => e.target.style.boxShadow = 'none'}
         >
           <option>Interested</option>
           <option>Applied</option>
@@ -163,6 +184,8 @@ export default function JobForm({ onCreated }) {
           placeholder="e.g., San Francisco, CA"
           value={form.location}
           onChange={handleChange}
+          onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
+          onBlur={(e) => e.target.style.boxShadow = 'none'}
         />
       </div>
 
@@ -174,6 +197,8 @@ export default function JobForm({ onCreated }) {
           type="date"
           value={form.dueDate}
           onChange={handleChange}
+          onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
+          onBlur={(e) => e.target.style.boxShadow = 'none'}
         />
       </div>
 
@@ -184,6 +209,8 @@ export default function JobForm({ onCreated }) {
           name="outcome" 
           value={form.outcome} 
           onChange={handleChange}
+          onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
+          onBlur={(e) => e.target.style.boxShadow = 'none'}
         >
           <option>Pending</option>
           <option>Accepted</option>
@@ -196,9 +223,11 @@ export default function JobForm({ onCreated }) {
         <input
           style={formStyles.input}
           name="tags"
-          placeholder="e.g., backend, python, startup"
+          placeholder="e.g., backend, python, startup (separated by commas)"
           value={form.tags}
           onChange={handleChange}
+          onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
+          onBlur={(e) => e.target.style.boxShadow = 'none'}
         />
       </div>
 
@@ -210,6 +239,8 @@ export default function JobForm({ onCreated }) {
           placeholder="https://..."
           value={form.jobUrl}
           onChange={handleChange}
+          onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
+          onBlur={(e) => e.target.style.boxShadow = 'none'}
         />
       </div>
 
@@ -221,23 +252,34 @@ export default function JobForm({ onCreated }) {
           placeholder="e.g., $80,000 - $120,000"
           value={form.salary}
           onChange={handleChange}
+          onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
+          onBlur={(e) => e.target.style.boxShadow = 'none'}
         />
       </div>
-
 
       <div style={formStyles.inputGroup}>
         <label style={formStyles.label}>Notes</label>
         <textarea
-          style={{...formStyles.input, minHeight: '100px', resize: 'vertical'}}
+          style={{...formStyles.input, minHeight: '120px', resize: 'vertical'}}
           name="notes"
           placeholder="Add any additional notes about this application..."
           value={form.notes}
           onChange={handleChange}
+          onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
+          onBlur={(e) => e.target.style.boxShadow = 'none'}
         />
       </div>
 
-      <button type="submit" style={formStyles.submitButton}>
-        Create Job Application
+      <button 
+        type="submit" 
+        style={{
+          ...formStyles.submitButton,
+          opacity: loading ? 0.7 : 1,
+          cursor: loading ? 'not-allowed' : 'pointer'
+        }}
+        disabled={loading}
+      >
+        {loading ? 'Creating Application...' : 'Create Job Application'}
       </button>
     </form>
   );

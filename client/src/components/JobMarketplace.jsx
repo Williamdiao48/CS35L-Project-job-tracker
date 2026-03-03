@@ -3,116 +3,268 @@ import axios from 'axios';
 
 const formatUrl = (url) => {
     if (!url) return '#';
-    // If it already has http or https, return it as is
     if (url.startsWith('http://') || url.startsWith('https://')) {
       return url;
     }
-    // Otherwise, add https:// to it
     return `https://${url}`;
-  };
+};
+
+const jobMarketplaceStyles = {
+  container: {
+    marginTop: "2rem"
+  },
+  searchForm: {
+    display: "grid",
+    gap: "1rem",
+    marginBottom: "2rem",
+    padding: "2rem",
+    backgroundColor: "#ffffff",
+    borderRadius: "12px",
+    border: "1px solid #e5e7eb",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)"
+  },
+  inputsContainer: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "1rem"
+  },
+  input: {
+    padding: "0.75rem 1rem",
+    border: "1.5px solid #e5e7eb",
+    borderRadius: "8px",
+    fontSize: "0.95em",
+    fontFamily: "inherit",
+    backgroundColor: "#ffffff",
+    color: "#000000",
+    transition: "all 0.25s ease"
+  },
+  submitBtn: {
+    padding: "0.75rem 1.5rem",
+    backgroundColor: "#1a6ed6",
+    color: "#ffffff",
+    border: "none",
+    borderRadius: "8px",
+    fontSize: "1em",
+    fontWeight: "600",
+    cursor: "pointer",
+    transition: "all 0.3s ease",
+    width: "100%"
+  },
+  loadingText: {
+    padding: "2rem",
+    textAlign: "center",
+    color: "#6b7280",
+    fontSize: "1em"
+  },
+  errorText: {
+    padding: "1rem",
+    backgroundColor: "#fee2e2",
+    color: "#dc2626",
+    borderRadius: "8px",
+    border: "1px solid #fecaca"
+  },
+  jobList: {
+    display: "grid",
+    gap: "1.5rem"
+  },
+  jobCard: {
+    padding: "2rem",
+    border: "1px solid #e5e7eb",
+    borderRadius: "12px",
+    backgroundColor: "#ffffff",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.06)",
+    transition: "all 0.3s ease"
+  },
+  jobTitle: {
+    fontSize: "1.2em",
+    fontWeight: "700",
+    color: "#000000",
+    margin: "0 0 0.75rem 0"
+  },
+  jobMeta: {
+    display: "flex",
+    gap: "1rem",
+    marginBottom: "1rem",
+    fontSize: "0.95em",
+    color: "#6b7280"
+  },
+  jobCompany: {
+    fontWeight: "700",
+    color: "#1a6ed6"
+  },
+  jobLink: {
+    display: "inline-block",
+    marginTop: "1rem",
+    padding: "0.6rem 1.2rem",
+    backgroundColor: "#1a6ed6",
+    color: "#ffffff",
+    textDecoration: "none",
+    borderRadius: "8px",
+    fontWeight: "600",
+    fontSize: "0.95em",
+    transition: "all 0.3s ease"
+  },
+  noJobs: {
+    padding: "2rem",
+    textAlign: "center",
+    color: "#6b7280",
+    fontSize: "0.95em"
+  }
+};
 
 const JobMarketplace = () => {
-  // State for the jobs and UI feedback
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // State for the search inputs (defaulting to something reasonable)
   const [searchParams, setSearchParams] = useState({
     title: 'Software Engineer',
     location: 'Remote'
   });
 
-  // The fetch function
   const fetchJobs = async () => {
     setLoading(true);
     setError(null);
     setJobs([]);
     try {
-      // 1. Get the token
       const token = localStorage.getItem('token');
       
-      // 2. Add it to the headers
       const response = await axios.get('/api/jobs/discover', {
         params: {
           title: searchParams.title,
           location: searchParams.location
         },
         headers: {
-          'Authorization': `Bearer ${token}` // This is the key piece!
+          'Authorization': `Bearer ${token}`
         }
       });
       
       setJobs(response.data.jobs);
     } catch (err) {
       console.error("Error fetching marketplace jobs:", err);
-      setError("Failed to load jobs.");
+      setError("Failed to load jobs. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Run once when the component mounts
   useEffect(() => {
     fetchJobs();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Handle form submission
   const handleSearch = (e) => {
     e.preventDefault();
     fetchJobs();
   };
 
   return (
-    <div className="job-marketplace">
-      <h2>Job Marketplace</h2>
+    <div style={jobMarketplaceStyles.container}>
+      <h2 style={{ marginBottom: "1.5rem" }}>Job Marketplace</h2>
 
-      {/* --- Search Form --- */}
-      <form onSubmit={handleSearch} style={{ marginBottom: '20px' }}>
-        <input 
-          type="text" 
-          placeholder="Job Title (e.g. React Developer)" 
-          value={searchParams.title}
-          onChange={(e) => setSearchParams({...searchParams, title: e.target.value})}
-          required
-        />
-        <input 
-          type="text" 
-          placeholder="Location (e.g. New York or Remote)" 
-          value={searchParams.location}
-          onChange={(e) => setSearchParams({...searchParams, location: e.target.value})}
-        />
-        <button type="submit" disabled={loading}>
+      {/* Search Form */}
+      <form onSubmit={handleSearch} style={jobMarketplaceStyles.searchForm}>
+        <div style={jobMarketplaceStyles.inputsContainer}>
+          <input 
+            type="text" 
+            placeholder="Job Title (e.g., React Developer)" 
+            value={searchParams.title}
+            onChange={(e) => setSearchParams({...searchParams, title: e.target.value})}
+            style={jobMarketplaceStyles.input}
+            onFocus={(e) => {
+              e.target.style.borderColor = "#1a6ed6";
+              e.target.style.boxShadow = "0 0 0 4px rgba(26, 110, 214, 0.1)";
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = "#e5e7eb";
+              e.target.style.boxShadow = "none";
+            }}
+            required
+          />
+          <input 
+            type="text" 
+            placeholder="Location (e.g., New York or Remote)" 
+            value={searchParams.location}
+            onChange={(e) => setSearchParams({...searchParams, location: e.target.value})}
+            style={jobMarketplaceStyles.input}
+            onFocus={(e) => {
+              e.target.style.borderColor = "#1a6ed6";
+              e.target.style.boxShadow = "0 0 0 4px rgba(26, 110, 214, 0.1)";
+            }}
+            onBlur={(e) => {
+              e.target.style.borderColor = "#e5e7eb";
+              e.target.style.boxShadow = "none";
+            }}
+          />
+        </div>
+        <button 
+          type="submit" 
+          style={{
+            ...jobMarketplaceStyles.submitBtn,
+            opacity: loading ? 0.7 : 1,
+            cursor: loading ? "not-allowed" : "pointer"
+          }}
+          disabled={loading}
+        >
           {loading ? 'Searching...' : 'Search Jobs'}
         </button>
       </form>
 
-      {/* --- UI States --- */}
-      {loading && <p>Loading jobs from Adzuna, Reed, and Google...</p>}
+      {/* Loading State */}
+      {loading && (
+        <div style={jobMarketplaceStyles.loadingText}>
+          ⏳ Searching jobs from multiple sources...
+        </div>
+      )}
       
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {/* Error State */}
+      {error && (
+        <div style={jobMarketplaceStyles.errorText}>
+          {error}
+        </div>
+      )}
       
+      {/* Empty State */}
       {!loading && !error && jobs.length === 0 && (
-        <p>No jobs found for that search. Try tweaking your keywords!</p>
+        <div style={jobMarketplaceStyles.noJobs}>
+          <div style={{ fontSize: "2.5em", marginBottom: "0.5rem" }}>🔍</div>
+          No jobs found for that search. Try tweaking your keywords!
+        </div>
       )}
 
-      {/* --- The Render --- */}
+      {/* Job Results */}
       {!loading && jobs.length > 0 && (
-        <div className="job-list">
+        <div style={jobMarketplaceStyles.jobList}>
           {jobs.map((job) => {
             const jobUrl = formatUrl(job.url);
-            return(
-            <div key={job.id} className="job-card" style={{ border: '1px solid #ccc', padding: '10px', margin: '10px 0' }}>
-                <h3>{job.title}</h3>
-                <p><strong>{job.company}</strong> • {job.location}</p>
-                <p><small>Source: {job.source}</small></p>
-                {jobUrl ? (
-                <a href={jobUrl} target="_blank" rel="noopener noreferrer">
-                View Job
-                </a>
-                ) : (<span style={{ color: '#888', fontStyle: 'italic' }}>Direct link unavailable(Check {job.source})</span>)}
-            </div> );
+            return (
+              <div key={job.id} style={jobMarketplaceStyles.jobCard}>
+                <h3 style={jobMarketplaceStyles.jobTitle}>{job.title}</h3>
+                <div style={jobMarketplaceStyles.jobMeta}>
+                  <span style={jobMarketplaceStyles.jobCompany}>{job.company}</span>
+                  <span>•</span>
+                  <span>{job.location}</span>
+                  <span>•</span>
+                  <span style={{ fontSize: "0.85em" }}>via {job.source}</span>
+                </div>
+                {jobUrl && jobUrl !== '#' ? (
+                  <a 
+                    href={jobUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={jobMarketplaceStyles.jobLink}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = "#0d5099"}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = "#1a6ed6"}
+                  >
+                    View Job
+                  </a>
+                ) : (
+                  <div style={{ color: "#9ca3af", fontSize: "0.9em", marginTop: "1rem" }}>
+                    📌 Link unavailable — check {job.source} directly
+                  </div>
+                )}
+              </div>
+            );
           })}
         </div>
       )}
