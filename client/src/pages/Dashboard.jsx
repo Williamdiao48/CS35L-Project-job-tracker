@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "../components/DashboardLayout";
 import Navbar from "../components/Navbar";
@@ -13,6 +13,8 @@ export default function Dashboard() {
   const [showAddJobForm, setShowAddJobForm] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
   const [sortOption, setSortOption] = useState("newest"); 
+  const [editingJob, setEditingJob] = useState(null);
+  const formRef = useRef(null);
 
   const fetchJobs = useCallback(async () => {
     try {
@@ -89,23 +91,27 @@ export default function Dashboard() {
     >
       
 
-      <div
-        className="jobs-container"
-        style={{
-          gridTemplateColumns: showAddJobForm ? "1fr 2fr" : "1fr"
-        }}
-      >
+      <div className="jobs-container">
         {showAddJobForm && (
-          <div>
-            <h2>Adding New Job</h2>
+          <div ref={formRef}>
+            <h2>{editingJob ? "Edit Job" : "Quick Add Job"}</h2>
             <JobForm
+              editingJob={editingJob}
               onCreated={() => {
                 fetchJobs();
+                setEditingJob(null);
                 setShowAddJobForm(false);
               }}
             />
           </div>
-        )}
+          )}
+          
+          {!showAddJobForm && (
+            <p style={{ color: "#6b7280", marginTop: "1.5rem", fontSize: "0.9em", fontWeight: "500" }}>
+              Click the "+ Add Job" button in the top bar to add a new application.
+            </p>
+          )}
+        </div>
 
         <div>
           <h2>Your Job Applications</h2>
@@ -187,15 +193,25 @@ export default function Dashboard() {
             </div>
           ) : (
             <>
-              <JobList 
-                jobs={jobs} 
+              <JobList
+                jobs={jobs}
                 search={search}
                 statusFilter={statusFilter}
-                onJobDeleted={fetchJobs} 
+                onJobDeleted={fetchJobs}
+                onJobUpdated={fetchJobs}
+              onEditJob={(job) => {
+                setEditingJob(job);
+                setShowAddJobForm(true);
+              
+                setTimeout(() => {
+                  formRef.current?.scrollIntoView({ behavior: "smooth" });
+                }, 100);
+              }}
               />
               
             </>
-          )}        </div>
+          )}          <JobMarketplace/>
+        </div>
       </div>
     </DashboardLayout>
   );

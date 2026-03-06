@@ -133,9 +133,32 @@ const styles = {
   }
 };
 
-export default function JobList({  jobs, search, statusFilter  }) {
+export default function JobList({ jobs, search, statusFilter, onJobUpdated, onEditJob }) {
   const [hoveredId, setHoveredId] = useState(null);
   
+  const updateStatus = async (jobId, newStatus) => {
+    try {
+      const token = localStorage.getItem("token");
+  
+      const res = await fetch(`http://localhost:5001/api/jobs/${jobId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+  
+      if (res.ok) {
+        if (onJobUpdated) onJobUpdated();
+      } else {
+        console.error("Failed to update status");
+      }
+    } catch (err) {
+      console.error("Status update error:", err);
+    }
+  };
+
   if (jobs.length === 0) {
     if (
       (search && search.trim() !== "") ||
@@ -199,9 +222,22 @@ export default function JobList({  jobs, search, statusFilter  }) {
                 <span style={styles.jobRole}>{job.role}</span>
               </h3>
             </div>
-            <div style={{...styles.statusBadge, ...getStatusStyle(job.status)}}>
-              {job.status}
-            </div>
+            <select
+              value={job.status}
+              onChange={(e) => updateStatus(job._id, e.target.value)}
+              style={{
+                ...styles.statusBadge,
+                ...getStatusStyle(job.status),
+                border: "none",
+                cursor: "pointer"
+              }}
+            >
+              <option>Interested</option>
+              <option>Applied</option>
+              <option>Interviewing</option>
+              <option>Offer</option>
+              <option>Rejected</option>
+            </select>
           </div>
 
           <div style={styles.jobDetails}>
@@ -262,6 +298,23 @@ export default function JobList({  jobs, search, statusFilter  }) {
                 <div style={styles.notesText}>{job.notes}</div>
               </div>
             )}
+
+            <div style={{ marginTop: "1.5rem" }}>
+              <button
+                onClick={() => onEditJob(job)}
+                style={{
+                  padding: "0.5rem 1rem",
+                  borderRadius: "6px",
+                  border: "1px solid #1a6ed6",
+                  background: "#ffffff",
+                  color: "#1a6ed6",
+                  cursor: "pointer",
+                  fontWeight: "600"
+                }}
+              >
+                ✏️ Edit
+              </button>
+            </div>
           </div>
         </div>
       ))}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const formStyles = {
   form: {
@@ -48,7 +48,7 @@ const formStyles = {
   }
 };
 
-export default function JobForm({ onCreated }) {
+export default function JobForm({ onCreated, editingJob }) {
   const [form, setForm] = useState({
     company: '',
     role: '',
@@ -62,6 +62,24 @@ export default function JobForm({ onCreated }) {
     salary: '',
     owner: ''
   });
+
+  useEffect(() => {
+    if (editingJob) {
+      setForm({
+        company: editingJob.company || "",
+        role: editingJob.role || "",
+        status: editingJob.status || "Applied",
+        location: editingJob.location || "",
+        dueDate: editingJob.dueDate ? editingJob.dueDate.substring(0,10) : "",
+        outcome: editingJob.outcome || "Pending",
+        tags: editingJob.tags ? editingJob.tags.join(", ") : "",
+        jobUrl: editingJob.jobUrl || "",
+        notes: editingJob.notes || "",
+        salary: editingJob.salary || ""
+      });
+    }
+  }, [editingJob]);
+
 
   const [loading, setLoading] = useState(false);
 
@@ -90,8 +108,14 @@ export default function JobForm({ onCreated }) {
     };
 
     try {
-      const res = await fetch('http://localhost:5001/api/jobs', {
-        method: 'POST',
+      const url = editingJob
+          ? `http://localhost:5001/api/jobs/${editingJob._id}`
+          : 'http://localhost:5001/api/jobs';
+
+        const method = editingJob ? "PUT" : "POST";
+
+        const res = await fetch(url, {
+          method,
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -279,7 +303,9 @@ export default function JobForm({ onCreated }) {
         }}
         disabled={loading}
       >
-        {loading ? 'Creating Application...' : 'Create Job Application'}
+        {loading
+          ? (editingJob ? 'Updating Application...' : 'Creating Application...')
+          : (editingJob ? 'Update Job Application' : 'Create Job Application')}
       </button>
     </form>
   );

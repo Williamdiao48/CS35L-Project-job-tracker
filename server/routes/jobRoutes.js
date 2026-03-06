@@ -134,20 +134,37 @@ router.get('/', authMiddleware, async (req, res) => {
   } catch (err) {
     return res.status(500).json({ error: 'Server error' });
   }
-});
+}); */
 
 // Update a job
-router.put('/:id', async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
   try {
-    const { company, role, status, dueDate, tags, jobUrl, notes, salary } = req.body;
-    const updateData = { company, role, status, dueDate, tags, jobUrl, notes, salary };
-    const updated = await Job.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true });
-    if (!updated) return res.status(404).json({ message: 'Job not found' });
+    const { company, role, status, dueDate, 
+      location, outcome, tags, jobUrl,notes, salary
+    } = req.body;
+
+    const updateData = {
+      company, role, status, dueDate, location, outcome,
+      tags, jobUrl, notes, salary
+    };
+
+    const updated = await Job.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: 'Job not found' });
+    }
+
     return res.json(updated);
+
   } catch (err) {
+    console.error("Update job error:", err);
     return res.status(500).json({ error: 'Server error' });
   }
-});*/
+});
 
 // Delete a job
 router.delete('/:id', async (req, res) => {
