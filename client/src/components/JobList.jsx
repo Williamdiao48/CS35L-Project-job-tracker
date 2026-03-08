@@ -4,10 +4,10 @@ const styles = {
   container: {
     display: "flex",
     flexDirection: "column",
-    gap: "1.5rem"
+    gap: "1rem"
   },
   emptyState: {
-    padding: "4rem 2rem",
+    padding: "3rem 1.5rem",
     textAlign: "center",
     color: "#6b7280",
     border: "2px dashed #e5e7eb",
@@ -21,7 +21,7 @@ const styles = {
     color: "#374151"
   },
   jobCard: {
-    padding: "2rem",
+    padding: "1.5rem",
     border: "1px solid #e5e7eb",
     borderRadius: "12px",
     background: "#ffffff",
@@ -38,31 +38,31 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "start",
-    marginBottom: "1.5rem",
-    gap: "1rem"
+    marginBottom: "1rem",
+    gap: "0.75rem"
   },
   jobTitle: {
-    fontSize: "1.3em",
+    fontSize: "1.1em",
     fontWeight: "600",
     color: "#000000",
     margin: "0",
-    lineHeight: "1.4"
+    lineHeight: "1.3"
   },
   jobCompany: {
-    fontSize: "1.1em",
+    fontSize: "1em",
     color: "#1a6ed6",
     fontWeight: "700"
   },
   jobRole: {
-    fontSize: "0.95em",
+    fontSize: "0.9em",
     color: "#6b7280"
   },
   statusBadge: {
     display: "inline-flex",
     gap: "0.5rem",
-    padding: "0.6rem 1.2rem",
+    padding: "0.5rem 1rem",
     borderRadius: "8px",
-    fontSize: "0.9em",
+    fontSize: "0.85em",
     fontWeight: "600",
     whiteSpace: "nowrap",
     flexShrink: 0
@@ -84,20 +84,20 @@ const styles = {
     color: "#dc2626"
   },
   jobDetails: {
-    fontSize: "0.95em",
+    fontSize: "0.9em",
     color: "#6b7280",
-    lineHeight: "1.8"
+    lineHeight: "1.6"
   },
   detailRow: {
     display: "flex",
-    gap: "0.75rem",
-    marginBottom: "1rem",
+    gap: "0.65rem",
+    marginBottom: "0.75rem",
     alignItems: "flex-start"
   },
   detailLabel: {
     fontWeight: "700",
     color: "#374151",
-    minWidth: "120px",
+    minWidth: "110px",
     flex: "0 0 auto"
   },
   detailValue: {

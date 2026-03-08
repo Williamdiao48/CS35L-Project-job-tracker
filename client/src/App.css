@@ -7,20 +7,23 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: #f9fafb;
+  background-color: #ffffff;
 }
 
 /* Top Navigation Bar */
 .topbar {
+  position: sticky;
+  top: 0;
+  width: 100%;
   background-color: #000000;
   color: #ffffff;
-  padding: 0 2.5rem;
-  height: 70px;
+  padding: 0 2rem;
+  height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  z-index: 100;
+  z-index: 1000; /* higher to keep above other content */
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
 }
@@ -28,11 +31,11 @@
 .topbar-left {
   display: flex;
   align-items: center;
-  gap: 3rem;
+  gap: 1rem;
 }
 
 .topbar-logo {
-  font-size: 1.4em;
+  font-size: 1.2em;
   font-weight: 700;
   color: #ffffff;
   letter-spacing: -0.5px;
@@ -42,7 +45,7 @@
 
 .topbar-nav {
   display: flex;
-  gap: 0.5rem;
+  gap: 1rem;
   align-items: center;
 }
 
@@ -50,15 +53,15 @@
   background-color: transparent;
   color: #ffffff;
   border: 2px solid transparent;
-  padding: 0.65rem 1.3rem;
-  font-weight: 600;
-  font-size: 0.95em;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+  font-size: 0.9em;
   transition: all 0.25s ease;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .topbar-nav button:hover {
@@ -83,12 +86,34 @@
   transform: translateY(-1px);
 }
 
+/* label styling */
+.topbar-nav .nav-label {
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1em;
+  padding: 0.6em 1rem 0.6em 1.5rem;
+}
+
+/* ensure nav items are spaced appropriately after label */
+.topbar-nav {
+  display: flex;
+  align-items: center;
+}
+
+.topbar-nav button:not(:first-child) {
+  margin-left: 1rem;
+}
+
+.topbar-nav button.add-job.active {
+  background-color: #0d5099;
+}
+
 /* Main Content Area */
 .main-content {
   flex: 1;
   overflow-y: auto;
   padding: 2.5rem;
-  background-color: #f9fafb;
+  background-color: #ffffff;
 }
 
 .content-wrapper {
@@ -109,13 +134,13 @@
 .jobs-container {
   display: grid;
   grid-template-columns: 1fr 2fr;
-  gap: 2rem;
+  gap: 1.5rem;
   margin-top: 1.5rem;
 }
 
 .jobs-container > div {
   background-color: #ffffff;
-  padding: 2.5rem;
+  padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   border: 1px solid #e5e7eb;
