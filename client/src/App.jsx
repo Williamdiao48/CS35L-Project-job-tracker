@@ -13,6 +13,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/marketplace" element={<Marketplace />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/marketplace" element={<JobMarketplace />} />
       </Routes>
     </BrowserRouter>
   );
