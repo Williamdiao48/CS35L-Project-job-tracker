@@ -3,19 +3,22 @@ import Dashboard from "./pages/Dashboard";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Marketplace from "./pages/Marketplace";
+import JobMarketplace from "./components/JobMarketplace";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/marketplace" element={<Marketplace />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/marketplace" element={<JobMarketplace />} />
-      </Routes>
-    </BrowserRouter>
+    <div className="app-wrapper">
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/marketplace" element={<Marketplace />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/marketplace" element={<JobMarketplace />} />
+        </Routes>
+      </BrowserRouter>
+    </div>
   );
 }
 

@@ -33,7 +33,7 @@ export default function Navbar({ onAddJobClick, onDashboardClick }) {
       <div className="topbar-left" />
       <div className="topbar-nav">
         {/* job tracker label on left */}
-        <span className="nav-label">Job Tracker</span>
+        <span className="nav-label" style={{ marginRight: "48.5em" }}>Job Tracker</span>
         <button 
           className={activeTab === "dashboard" ? "active" : ""}
           onClick={() => handleNavClick("dashboard")}
