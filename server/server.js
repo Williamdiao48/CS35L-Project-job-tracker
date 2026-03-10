@@ -42,8 +42,8 @@ const startServer = async () => {
             checkUpcomingDeadlines();
         });
 
-        console.log('✅ Email notification scheduler activated (runs daily at 9 AM)');
-        console.log('📧 Gmail notifications are ready!');
+        console.log('Email notification scheduler activated (runs daily at 9 AM)');
+        console.log('Gmail notifications are ready!');
 
     } catch (err) {
         console.error("Failed to start server:", err);
