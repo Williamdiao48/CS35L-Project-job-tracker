@@ -330,7 +330,7 @@ const JobMarketplace = () => {
                   {saveStatuses[job.id] === 'saving' && 'Saving...'}
                   {saveStatuses[job.id] === 'saved' && 'Saved'}
                   {saveStatuses[job.id] === 'error' && 'Failed — Retry?'}
-                  {(!saveStatuses[job.id] || saveStatuses[job.id] === 'idle') && '+ Save to My Jobs'}
+                  {(!saveStatuses[job.id] || saveStatuses[job.id] === 'idle') && '+ Save to Your Jobs'}
                 </button>
               </div>
             );

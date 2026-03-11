@@ -133,7 +133,7 @@ const styles = {
   }
 };
 
-export default function JobList({ jobs, search, statusFilter, onJobUpdated, onEditJob }) {
+export default function JobList({ jobs, search, statusFilter, onJobDeleted, onJobUpdated, onEditJob }) {
   const [hoveredId, setHoveredId] = useState(null);
   
   const updateStatus = async (jobId, newStatus) => {
@@ -200,6 +200,19 @@ export default function JobList({ jobs, search, statusFilter, onJobUpdated, onEd
       default:
         return { background: "#f3f4f6", color: "#6b7280" };
     }
+  };
+
+  const getDeadlineBadge = (dueDate, status) => {
+    if (!dueDate) return null;
+    if (status !== 'Interested') return null;  
+    const now = new Date();
+    const due = new Date(dueDate);
+    const daysLeft = Math.ceil((due-now) / (1000*60*60*24));
+    if (daysLeft < 0) return { label: 'Overdue', color: '#dc2626', bg: '#fee2e2' };
+    if (daysLeft === 0) return { label: 'Due today', color: '#dc2626', bg: '#fee2e2' };
+    if (daysLeft <= 3) return { label: `Due in ${daysLeft} day${daysLeft === 1 ? '' : 's'}`, color: '#b45309', bg: '#fef3c7' };
+    if (daysLeft <= 7) return { label: `Due in ${daysLeft} days`, color: '#1d4ed8', bg: '#dbeafe' };
+    return null;
   };
 
   return (
@@ -299,21 +312,61 @@ export default function JobList({ jobs, search, statusFilter, onJobUpdated, onEd
               </div>
             )}
 
-            <div style={{ marginTop: "1.5rem" }}>
-              <button
-                onClick={() => onEditJob(job)}
-                style={{
-                  padding: "0.5rem 1rem",
-                  borderRadius: "6px",
-                  border: "1px solid #1a6ed6",
-                  background: "#ffffff",
-                  color: "#1a6ed6",
-                  cursor: "pointer",
-                  fontWeight: "600"
-                }}
-              >
-                ✏️ Edit
-              </button>
+            <div style={{ marginTop: "1.5rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <button
+                  onClick={() => onEditJob(job)}
+                  style={{
+                    padding: "0.5rem 1rem",
+                    borderRadius: "6px",
+                    border: "1px solid #1a6ed6",
+                    background: "#ffffff",
+                    color: "#1a6ed6",
+                    cursor: "pointer",
+                    fontWeight: "600"
+                  }}
+                >
+                  ✏️ Edit
+                </button>
+                <button
+                  onClick={async () => {
+                    const token = localStorage.getItem("token");
+                    await fetch(`http://localhost:5001/api/jobs/${job._id}`, {
+                      method: "DELETE",
+                      headers: { Authorization: `Bearer ${token}` }
+                    });
+                    onJobDeleted();
+                  }}
+                  style={{
+                    padding: "0.5rem 1rem",
+                    borderRadius: "6px",
+                    border: "1px solid #dc2626",
+                    background: "#ffffff",
+                    color: "#dc2626",
+                    cursor: "pointer",
+                    fontWeight: "600",
+                    marginLeft: "1.5rem"
+                  }}
+                >
+                  🗑️ Delete
+                </button>
+              </div>
+              {(() => {
+                const badge = getDeadlineBadge(job.dueDate, job.status);
+                return badge ? (
+                  <span style={{
+                    padding: "0.25rem 0.6rem",
+                    borderRadius: "999px",
+                    fontSize: "0.8em",
+                    fontWeight: "600",
+                    backgroundColor: badge.bg,
+                    color: badge.color,
+                    marginRight: "0.5rem",
+                  }}>
+                    ⚠️ {badge.label}
+                  </span>
+                ) : null;
+              })()}
             </div>
           </div>
         </div>
