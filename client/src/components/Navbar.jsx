@@ -27,6 +27,13 @@ export default function Navbar({ onAddJobClick, onDashboardClick }) {
     }
   };
 
+  const handleLogout = () =>{
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('username');
+    navigate('/login');
+  }
+
   return (
     <div className="topbar">
       {/* left section now empty or could hold logo if desired */}
@@ -54,6 +61,11 @@ export default function Navbar({ onAddJobClick, onDashboardClick }) {
           style={{ marginLeft: "1rem" }}
         >
           + Add Job
+        </button>
+        <button
+          onClick={handleLogout}
+          style={{marginLeft:"1rem", color: "#FF0000"}}>
+          Logout
         </button>
       </div>
     </div>
