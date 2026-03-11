@@ -109,8 +109,8 @@ export default function JobForm({ onCreated, editingJob }) {
 
     try {
       const url = editingJob
-          ? `http://localhost:5001/api/jobs/${editingJob._id}`
-          : 'http://localhost:5001/api/jobs';
+        ? `/api/jobs/${editingJob._id}`
+        : '/api/jobs';
 
         const method = editingJob ? "PUT" : "POST";
 

@@ -140,7 +140,7 @@ export default function JobList({ jobs, search, statusFilter, onJobUpdated, onEd
     try {
       const token = localStorage.getItem("token");
   
-      const res = await fetch(`http://localhost:5001/api/jobs/${jobId}`, {
+      const res = await fetch(`/api/jobs/${jobId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

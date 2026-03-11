@@ -28,7 +28,7 @@ export default function Dashboard() {
       if (statusFilter) params.append("status", statusFilter);
       if (sortOption) params.append("sort", sortOption);
 
-      const url = `http://localhost:5001/api/jobs?${params.toString()}`;
+      const url = `/api/jobs?${params.toString()}`;
 
       const res = await fetch(url, {
         headers: {
