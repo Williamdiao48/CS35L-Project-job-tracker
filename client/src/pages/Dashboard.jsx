@@ -4,6 +4,7 @@ import DashboardLayout from "../components/DashboardLayout";
 import Navbar from "../components/Navbar";
 import JobForm from "../components/JobForm";
 import JobList from "../components/JobList";
+import JobMarketplace from "../components/JobMarketplace";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -12,34 +13,26 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [showAddJobForm, setShowAddJobForm] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
-  const [sortOption, setSortOption] = useState("newest"); 
+  const [sortOption, setSortOption] = useState("newest");
   const [editingJob, setEditingJob] = useState(null);
   const formRef = useRef(null);
 
   const fetchJobs = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) return;
 
       const params = new URLSearchParams();
 
-      if (search) {
-        params.append("search", search);
-      }
-
-      if (statusFilter) {
-        params.append("status", statusFilter);
-      }
-
-      if (sortOption) {
-        params.append("sort", sortOption);
-      }
+      if (search) params.append("search", search);
+      if (statusFilter) params.append("status", statusFilter);
+      if (sortOption) params.append("sort", sortOption);
 
       const url = `http://localhost:5001/api/jobs?${params.toString()}`;
 
       const res = await fetch(url, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          Authorization: `Bearer ${token}`
         }
       });
 
@@ -58,7 +51,6 @@ export default function Dashboard() {
     fetchJobs();
   }, [fetchJobs]);
 
-  // clear add-job form when page loads
   useEffect(() => {
     setShowAddJobForm(false);
   }, []);
@@ -84,14 +76,18 @@ export default function Dashboard() {
     minWidth: "150px"
   };
 
-
   return (
     <DashboardLayout
-      navbar={<Navbar onAddJobClick={handleAddJobClick} onDashboardClick={handleDashboardClick} />}
+      navbar={
+        <Navbar
+          onAddJobClick={handleAddJobClick}
+          onDashboardClick={handleDashboardClick}
+        />
+      }
     >
-      
-
       <div className="jobs-container">
+
+        {/* ADD JOB FORM */}
         {showAddJobForm && (
           <div ref={formRef}>
             <h2>{editingJob ? "Edit Job" : "Quick Add Job"}</h2>
@@ -104,37 +100,38 @@ export default function Dashboard() {
               }}
             />
           </div>
-          )}
-          
-          {!showAddJobForm && (
-            <p style={{ color: "#6b7280", marginTop: "1.5rem", fontSize: "0.9em", fontWeight: "500" }}>
-              Click the "+ Add Job" button in the top bar to add a new application.
-            </p>
-          )}
-        </div>
+        )}
+
+        {!showAddJobForm && (
+          <p
+            style={{
+              color: "#6b7280",
+              marginTop: "1.5rem",
+              fontSize: "0.9em",
+              fontWeight: "500"
+            }}
+          >
+            Click the "+ Add Job" button in the top bar to add a new application.
+          </p>
+        )}
 
         <div>
           <h2>Your Job Applications</h2>
-          <div style={{ 
-            display: "flex", 
-            gap: "1rem", 
-            marginBottom: "1.5rem",
-            flexWrap: "wrap",
-            alignItems: "center"
-          }}>
 
-            {/* Status Filter */}
+          <div
+            style={{
+              display: "flex",
+              gap: "1rem",
+              marginBottom: "1.5rem",
+              flexWrap: "wrap",
+              alignItems: "center"
+            }}
+          >
+
+            {/* STATUS FILTER */}
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              onFocus={(e) => {
-                e.target.style.borderColor = "#1a6ed6";
-                e.target.style.boxShadow = "0 0 0 4px rgba(26, 110, 214, 0.1)";
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = "#e5e7eb";
-                e.target.style.boxShadow = "none";
-              }}
               style={filterSelectStyle}
             >
               <option value="">All Statuses</option>
@@ -145,18 +142,10 @@ export default function Dashboard() {
               <option value="Rejected">Rejected</option>
             </select>
 
-            {/* Sort Option */}
+            {/* SORT */}
             <select
               value={sortOption}
               onChange={(e) => setSortOption(e.target.value)}
-              onFocus={(e) => {
-                e.target.style.borderColor = "#1a6ed6";
-                e.target.style.boxShadow = "0 0 0 4px rgba(26, 110, 214, 0.1)";
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = "#e5e7eb";
-                e.target.style.boxShadow = "none";
-              }}
               style={filterSelectStyle}
             >
               <option value="newest">Newest First</option>
@@ -165,30 +154,24 @@ export default function Dashboard() {
               <option value="companyZA">Company Z–A</option>
             </select>
 
-            {/* Search Input moved alongside filters */}
+            {/* SEARCH */}
             <input
               type="text"
               placeholder="Search jobs..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              onFocus={(e) => {
-                e.target.style.borderColor = "#1a6ed6";
-                e.target.style.boxShadow = "0 0 0 4px rgba(26, 110, 214, 0.1)";
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = "#e5e7eb";
-                e.target.style.boxShadow = "none";
-              }}
               style={{ ...filterSelectStyle, flex: "1 1 250px", minWidth: "200px" }}
             />
-
           </div>
+
           {loading ? (
-            <div style={{ 
-              padding: "2rem",
-              textAlign: "center",
-              color: "#6b7280"
-            }}>
+            <div
+              style={{
+                padding: "2rem",
+                textAlign: "center",
+                color: "#6b7280"
+              }}
+            >
               <p>Loading your job applications...</p>
             </div>
           ) : (
@@ -199,18 +182,19 @@ export default function Dashboard() {
                 statusFilter={statusFilter}
                 onJobDeleted={fetchJobs}
                 onJobUpdated={fetchJobs}
-              onEditJob={(job) => {
-                setEditingJob(job);
-                setShowAddJobForm(true);
-              
-                setTimeout(() => {
-                  formRef.current?.scrollIntoView({ behavior: "smooth" });
-                }, 100);
-              }}
+                onEditJob={(job) => {
+                  setEditingJob(job);
+                  setShowAddJobForm(true);
+
+                  setTimeout(() => {
+                    formRef.current?.scrollIntoView({ behavior: "smooth" });
+                  }, 100);
+                }}
               />
-              
+
+              <JobMarketplace />
             </>
-          )}          <JobMarketplace/>
+          )}
         </div>
       </div>
     </DashboardLayout>
