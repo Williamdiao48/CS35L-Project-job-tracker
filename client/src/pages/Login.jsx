@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { GoogleLogin } from "@react-oauth/google";
 
 const styles = {
   container: {
@@ -238,6 +239,42 @@ export default function Login() {
                 {loading ? "Signing in..." : "Sign In"}
               </button>
             </form>
+
+            <div style={{ marginTop: "1.5rem", display: "flex", justifyContent: "center" }}>
+            <GoogleLogin
+              onSuccess={async (credentialResponse) => {
+                try {
+                  const res = await fetch("/api/users/google-login", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                      token: credentialResponse.credential
+                    })
+                  });
+
+                  const data = await res.json();
+
+                  if (!res.ok) {
+                    setErrorMessage(data.error || "Google login failed");
+                    return;
+                  }
+
+                  localStorage.setItem("token", data.token);
+                  localStorage.setItem("userId", data.user.id);
+                  localStorage.setItem("username", data.user.username);
+
+                  navigate("/dashboard");
+                } catch (err) {
+                  setErrorMessage("Google login error");
+                }
+              }}
+              onError={() => {
+                console.log("Google login failed");
+              }}
+            />
+            </div>
 
             <div style={styles.footer}>
               Don't have an account?{" "}

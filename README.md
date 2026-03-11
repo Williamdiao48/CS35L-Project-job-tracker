@@ -26,6 +26,7 @@ React + Vite frontend for the **JobTrackr** full-stack job application tracker. 
 The client is a single-page React application that provides:
 
 - User registration and login (JWT-based auth)
+- Google OAuth login for quick authentication
 - A dashboard for viewing all tracked job applications
 - A form for adding new job entries
 - Color-coded status badges and card-based job listings
@@ -87,6 +88,7 @@ client/
 
 #### `Login.jsx` — `/login`
 - Username + password form
+- Google OAuth login option
 - `POST /api/users/login`
 - On success: stores `token`, `userId`, `username` in `localStorage`, redirects to `/dashboard`
 - On failure: shows inline error; prompts to register if username not found
@@ -172,6 +174,7 @@ Status badge colors:
 "react": "^19.2.0"
 "react-dom": "^19.2.0"
 "react-router-dom": "^7.13.0"
+"@react-oauth/google": "^0.12.1"
 ```
 
 ### Development (`devDependencies`)
@@ -263,10 +266,23 @@ Defined in [client/src/App.jsx](client/src/App.jsx) using `react-router-dom`:
 
 ## Authentication Flow
 
-1. User logs in or registers → server returns a JWT token
-2. Token, `userId`, and `username` are stored in `localStorage`
-3. Subsequent API requests include the token as `Authorization: Bearer <token>`
-4. The server's `authMiddleware` validates the token and attaches `req.user` to protected routes
+### Email / Password Login
+1. User submits username and password
+2. `POST /api/users/login`
+3. Server verifies password using bcrypt
+4. Server returns a JWT token
+5. Token is stored in localStorage and used for authenticated API requests
+
+### Google OAuth Login
+1. User clicks "Sign in with Google"
+2. Google Identity Services returns an ID token
+3. Client sends token to `POST /api/users/google-login`
+4. Backend verifies token using `google-auth-library`
+5. If the email does not exist, a new user is automatically created
+6. Server returns a JWT token used for authenticated requests
+
+All authenticated API requests include:
+Authorization: Bearer <token>
 
 ---
 
@@ -277,9 +293,11 @@ All API requests target the backend. In development, Vite proxies `/api/*` to `h
 | Method | Endpoint | Auth | Used In |
 |---|---|---|---|
 | POST | `/api/users/login` | No | `Login.jsx` |
+| POST | `/api/users/google-login` | No | `Login.jsx` |
 | POST | `/api/users/register` | No | `Register.jsx` |
 | GET | `/api/jobs` | Yes (Bearer) | `Dashboard.jsx` |
 | POST | `/api/jobs` | Yes (Bearer) | `JobForm.jsx` |
+
 
 > `JobForm.jsx` currently calls `http://localhost:5001/api/jobs` directly instead of using the `/api` proxy path. This works in development but may break in other environments.
 

@@ -2,8 +2,10 @@ import express from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
+import { OAuth2Client } from "google-auth-library";
 
 const router = express.Router();
+const client = new OAuth2Client("168412292658-d46k9rt2thje683s53nul3kksv6oke28.apps.googleusercontent.com");
 
 // Generate JWT Token
 const generateToken = (userId) => {
@@ -55,6 +57,49 @@ router.post("/login", async(req,res)=>{
         return res.status(500).json({ error: "Server Error"});
     }
 });
+
+// Google Login Route
+router.post("/google-login", async (req, res) => {
+    try {
+      const { token } = req.body;
+  
+      const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: "168412292658-d46k9rt2thje683s53nul3kksv6oke28.apps.googleusercontent.com"
+      });
+  
+      const payload = ticket.getPayload();
+  
+      const email = payload.email;
+      const name = payload.name;
+  
+      let user = await User.findOne({ email });
+  
+      // If user doesn't exist, create one
+      if (!user) {
+        user = new User({
+            username: email.split("@")[0], // safer way to save username
+            email,
+            password: Math.random().toString(36) // dummy password
+        });
+  
+        await user.save();
+      }
+  
+      const tokenJWT = generateToken(user._id);
+  
+      res.json({
+        message: "Google login successful",
+        token: tokenJWT,
+        user: { id: user._id, username: user.username, email: user.email }
+      });
+  
+    } catch (err) {
+      console.error("Google login error:", err);
+      res.status(401).json({ error: "Invalid Google token" });
+    }
+  });
+
 
 // Protected Route Example - Get User Profile
 router.get("/profile", authMiddleware, async(req, res)=>{
