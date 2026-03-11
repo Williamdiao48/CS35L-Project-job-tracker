@@ -17,6 +17,7 @@ React + Vite frontend for the **JobTrackr** full-stack job application tracker. 
 - [Routing](#routing)
 - [Authentication Flow](#authentication-flow)
 - [API Integration](#api-integration)
+- [Email Notifications](#email-notifications)
 - [Styling](#styling)
 
 ---
@@ -30,6 +31,7 @@ The client is a single-page React application that provides:
 - A dashboard for viewing all tracked job applications
 - A form for adding new job entries
 - Color-coded status badges and card-based job listings
+- Automated email notifications 24 hours before application deadlines
 - Responsive layout for desktop, tablet, and mobile
 
 ---
@@ -97,6 +99,7 @@ client/
 - Username, email, and password form
 - `POST /api/users/register`
 - On success: stores `token` and user info in `localStorage`, redirects to `/dashboard`
+- User email is stored and used for deadline notifications
 
 #### `Dashboard.jsx` — `/dashboard`
 - Fetches all jobs for the authenticated user on mount (`GET /api/jobs`)
@@ -144,6 +147,7 @@ Outcome options: `Pending`, `Accepted`, `Rejected`
 - Tags are split by comma and trimmed before submission
 - Calls `onCreated()` prop after successful submission to refresh the parent list
 - Resets form after submission
+- If a deadline is set, user will receive email notification 24 hours before
 
 #### `JobList.jsx`
 - Renders an empty state with a help message when no jobs exist
@@ -297,11 +301,50 @@ All API requests target the backend. In development, Vite proxies `/api/*` to `h
 | POST | `/api/users/register` | No | `Register.jsx` |
 | GET | `/api/jobs` | Yes (Bearer) | `Dashboard.jsx` |
 | POST | `/api/jobs` | Yes (Bearer) | `JobForm.jsx` |
+| POST | `/api/notifications/check-deadlines` | Yes (Bearer) | Manual trigger |
+| POST | `/api/notifications/test-email` | Yes (Bearer) | Testing |
 
 
 > `JobForm.jsx` currently calls `http://localhost:5001/api/jobs` directly instead of using the `/api` proxy path. This works in development but may break in other environments.
 
 ---
+
+## Email Notifications
+
+### Overview
+JobTrackr includes an automated email notification system that sends reminders 24 hours before job application deadlines.
+
+### How It Works
+1. When users register, their email is stored in the database
+2. When users add a job with a deadline date, it's stored in MongoDB
+3. A cron job runs daily at 9:00 AM to check for upcoming deadlines
+4. Users receive professional email notifications 24 hours before their deadlines
+
+### Backend Implementation
+
+#### Technologies Used
+- **Nodemailer**: Email sending library for Node.js
+- **Node-cron**: Task scheduler for automated daily checks
+- **Gmail SMTP**: Email delivery service
+
+#### File Structure
+```
+server/
+├── services/
+│   └── emailService.js         # Gmail SMTP configuration and email templates
+├── utils/
+│   └── deadlineChecker.js      # Deadline detection and notification logic
+├── routes/
+│   └── notificationRoutes.js   # API endpoints for manual testing
+└── server.js                    # Cron scheduler configuration
+```
+
+#### Testing Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/notifications/check-deadlines` | Manually trigger deadline check |
+| POST | `/api/notifications/test-email` | Send test email to logged-in user |
 
 ## Styling
 
