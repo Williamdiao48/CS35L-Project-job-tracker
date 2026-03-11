@@ -116,6 +116,7 @@ const JobMarketplace = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [total, setTotal] = useState(null);
 
   const [searchParams, setSearchParams] = useState({
     title: 'Software Engineer',
@@ -126,6 +127,7 @@ const JobMarketplace = () => {
     setLoading(true);
     setError(null);
     setJobs([]);
+    setTotal(null);
     try {
       const token = localStorage.getItem('token');
       
@@ -140,6 +142,7 @@ const JobMarketplace = () => {
       });
       
       setJobs(response.data.jobs);
+      setTotal(response.data.total);
     } catch (err) {
       console.error("Error fetching marketplace jobs:", err);
       setError("Failed to load jobs. Please try again.");
@@ -234,6 +237,10 @@ const JobMarketplace = () => {
 
       {/* Job Results */}
       {!loading && jobs.length > 0 && (
+        <>
+        <div style={{ marginBottom: "1rem", color: "#6b7280", fontSize: "0.95em" }}>
+        Showing {total} result{total !== 1 ? 's' : ''}
+        </div>
         <div style={jobMarketplaceStyles.jobList}>
           {jobs.map((job) => {
             const jobUrl = formatUrl(job.url);
@@ -267,6 +274,7 @@ const JobMarketplace = () => {
             );
           })}
         </div>
+        </>
       )}
     </div>
   );
