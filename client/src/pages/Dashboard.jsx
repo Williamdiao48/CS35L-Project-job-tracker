@@ -191,8 +191,6 @@ export default function Dashboard() {
                   }, 100);
                 }}
               />
-
-              <JobMarketplace />
             </>
           )}
         </div>

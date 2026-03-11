@@ -8,6 +8,7 @@ import userRoutes from './routes/userRoutes.js';
 import jobRoutes from './routes/jobRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import { checkUpcomingDeadlines } from './utils/deadlineChecker.js';
+import cron from 'node-cron';
 
 // Get directory name for ES modules
 const __filename = fileURLToPath(import.meta.url);
