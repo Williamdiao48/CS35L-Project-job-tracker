@@ -1,5 +1,5 @@
 import { fetchAdzuna, fetchReed, fetchSerpApi } from '../services/jobService.js';
-
+import { getCacheKey, getCached, setCache } from '../cache/searchCache.js'
 
 const generateUniqueID = (job) => {
     const company = job.company?.toLowerCase().replace(/\s+/g, '') || 'unknown';
@@ -22,11 +22,23 @@ export const discoverJobs = async (req, res) => {
     try {
         // Get search parameters from the frontend query (e.g., ?title=React&location=NY)
         const { title, location } = req.query;
-  
+        const startTime = Date.now();
         if (!title) {
         return res.status(400).json({ message: "Job title is required for discovery." });
         }
-  
+        const cacheKey = getCacheKey(title, location || '');
+        const cachedResults = getCached(cacheKey);
+
+        if (cachedResults) {
+          console.log(`Cache hit for: "${cacheKey}" took ${Date.now() - startTime}ms`);
+          return res.status(200).json({
+            total: cachedResults.length,
+            jobs: cachedResults,
+            fromCache: true
+          });
+        }
+
+        console.log(`Cache miss for: "${cacheKey}" — fetching from APIs...`);
         console.log(`Searching for ${title} in ${location || 'anywhere'}...`);
         //Reeds only supports UK so we have to ensure we only use its results for uk searches
         const isUKSearch = location?.toLowerCase().includes('uk') || location?.toLowerCase().includes('london') || location?.toLowerCase().includes('united kingdom');
@@ -96,14 +108,16 @@ export const discoverJobs = async (req, res) => {
 
         // 6. Convert map back to array and sort (if you want latest first)
         const allJobs = Array.from(uniqueJobsMap.values());
-
+        
         // Optional: Sort by Title (or Date if your APIs provide it)
         allJobs.sort((a, b) => a.title.localeCompare(b.title));
+
+        setCache(cacheKey, allJobs);
         res.status(200).json({
         total: allJobs.length,
         jobs: allJobs
         });
-  
+        console.log(`Search "${title} in ${location || 'anywhere'}" took ${Date.now() - startTime}ms`);
     } catch (error) {
         console.error("Discovery Controller Error:", error);
         res.status(500).json({ message: "Failed to fetch jobs from external sources." });
