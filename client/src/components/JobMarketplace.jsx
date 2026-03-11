@@ -109,7 +109,33 @@ const jobMarketplaceStyles = {
     textAlign: "center",
     color: "#6b7280",
     fontSize: "0.95em"
-  }
+  },
+  saveBtn: {
+    display: "inline-block",
+    marginTop: "1rem",
+    marginLeft: "0.75rem",
+    padding: "0.6rem 1.2rem",
+    backgroundColor: "#ffffff",
+    color: "#1a6ed6",
+    border: "1.5px solid #1a6ed6",
+    borderRadius: "8px",
+    fontWeight: "600",
+    fontSize: "0.95em",
+    cursor: "pointer",
+    transition: "all 0.3s ease"
+  },
+  saveBtnSaved: {
+    backgroundColor: "#dcfce7",
+    color: "#15803d",
+    border: "1.5px solid #15803d",
+    cursor: "default"
+  },
+  saveBtnError: {
+    backgroundColor: "#fee2e2",
+    color: "#dc2626",
+    border: "1.5px solid #dc2626",
+    cursor: "pointer"
+  }  
 };
 
 const JobMarketplace = () => {
@@ -117,10 +143,11 @@ const JobMarketplace = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [total, setTotal] = useState(null);
+  const [saveStatuses, setSaveStatuses] = useState({});
 
   const [searchParams, setSearchParams] = useState({
-    title: 'Software Engineer',
-    location: 'Remote'
+    title: '',
+    location: ''
   });
 
   const fetchJobs = async () => {
@@ -151,15 +178,37 @@ const JobMarketplace = () => {
     }
   };
 
-  useEffect(() => {
-    fetchJobs();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
     fetchJobs();
   };
+
+  const saveJob = async(job) =>{
+    setSaveStatuses(prev =>({ ...prev, [job.id]: 'saving'}));
+    try{
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/jobs',{
+        method: 'POST', headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          company: job.company,
+          role:job.title,
+          location: job.location || '',
+          jobUrl: job.url || '',
+          status: 'Interested'
+        })
+      });
+      if(!res.ok) throw new Error('Failed to save');
+      setSaveStatuses(prev => ({ ...prev, [job.id]: 'saved'}));
+    } catch(err){
+      console.error('Save job error:', err);
+      setSaveStatuses(prev=>({ ...prev, [job.id]: 'error'}));
+    }
+    }
+  
 
   return (
     <div style={jobMarketplaceStyles.container}>
@@ -170,7 +219,7 @@ const JobMarketplace = () => {
         <div style={jobMarketplaceStyles.inputsContainer}>
           <input 
             type="text" 
-            placeholder="Job Title (e.g., React Developer)" 
+            placeholder="Job Title (e.g., Software Developer)" 
             value={searchParams.title}
             onChange={(e) => setSearchParams({...searchParams, title: e.target.value})}
             style={jobMarketplaceStyles.input}
@@ -270,6 +319,19 @@ const JobMarketplace = () => {
                     📌 Link unavailable — check {job.source} directly
                   </div>
                 )}
+                <button
+                  onClick={() => saveJob(job)}
+                  disabled={saveStatuses[job.id] === 'saving'||saveStatuses[job.id] === 'saved'}
+                  style ={{
+                    ...jobMarketplaceStyles.saveBtn,
+                    ...(saveStatuses[job.id] === 'saved' ? jobMarketplaceStyles.saveBtnSaved : {}),
+                    ...(saveStatuses[job.id] === 'error' ? jobMarketplaceStyles.saveBtnError : {})
+                  }}>
+                  {saveStatuses[job.id] === 'saving' && 'Saving...'}
+                  {saveStatuses[job.id] === 'saved' && 'Saved'}
+                  {saveStatuses[job.id] === 'error' && 'Failed — Retry?'}
+                  {(!saveStatuses[job.id] || saveStatuses[job.id] === 'idle') && '+ Save to Your Jobs'}
+                </button>
               </div>
             );
           })}

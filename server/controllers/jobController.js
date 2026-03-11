@@ -82,7 +82,7 @@ export const discoverJobs = async (req, res) => {
             const bestLink = job.apply_options?.[0]?.link || job.related_links?.[0]?.link || null;
           
             return {
-                id: `serp-${index}`,
+                id: job.job_id || `serp-${index}`,
                 title: job.title,
                 company: job.company_name,
                 location: job.location,
