@@ -103,7 +103,8 @@ export default function JobForm({ onCreated, editingJob }) {
       tags: form.tags
         .split(',')
         .map(t => t.trim())
-        .filter(Boolean)
+        .filter(Boolean),
+      dueDate: form.dueDate ? form.dueDate + 'T00:00:00' : form.dueDate
     };
 
     try {
