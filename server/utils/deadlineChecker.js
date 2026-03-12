@@ -6,15 +6,23 @@ export const checkUpcomingDeadlines = async () => {
         console.log('🔍 Checking for upcoming deadlines...');
     
         const now = new Date();
-        const startOfToday = new Date(now);
-        startOfToday.setHours(0, 0, 0, 0);
-        const in24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
+        // Get tomorrow's date (the day we're checking deadlines for)
+        const tomorrow = new Date(now);
+        tomorrow.setDate(now.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0); // Start of tomorrow
+
+        // Get end of tomorrow
+        const endOfTomorrow = new Date(tomorrow);
+        endOfTomorrow.setHours(23, 59, 59, 999);
+
+         console.log(`Looking for jobs due on ${tomorrow.toDateString()}`);
 
         // Find jobs with deadlines from start of today through the next 24 hours
         const jobsWithDeadlines = await Job.find({
             dueDate: {
-                $gte: startOfToday,
-                $lte: in24Hours
+                $gte: tomorrow,
+                $lte: endOfTomorrow
             },
             status: { $ne: 'Rejected' } // Don't send reminders for rejected applications
         }).populate('owner', 'email username');
@@ -24,6 +32,7 @@ export const checkUpcomingDeadlines = async () => {
         // Send email for each job
         for (const job of jobsWithDeadlines) {
             if (job.owner && job.owner.email) {
+                console.log(`Sending reminder to ${job.owner.email} for ${job.company} - ${job.role}`);
                 await sendDeadlineReminder(
                     job.owner.email,
                     job.owner.username,
