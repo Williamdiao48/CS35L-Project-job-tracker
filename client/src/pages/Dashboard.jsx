@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import DashboardLayout from "../components/DashboardLayout";
 import Navbar from "../components/Navbar";
 import JobForm from "../components/JobForm";
@@ -7,11 +7,11 @@ import JobList from "../components/JobList";
 import JobMarketplace from "../components/JobMarketplace";
 
 export default function Dashboard() {
-  const navigate = useNavigate();
+  const location = useLocation();
   const [jobs, setJobs] = useState([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const [showAddJobForm, setShowAddJobForm] = useState(false);
+  const [showAddJobForm, setShowAddJobForm] = useState(location.state?.openForm === true);
   const [statusFilter, setStatusFilter] = useState("");
   const [sortOption, setSortOption] = useState("newest");
   const [editingJob, setEditingJob] = useState(null);
@@ -50,10 +50,6 @@ export default function Dashboard() {
   useEffect(() => {
     fetchJobs();
   }, [fetchJobs]);
-
-  useEffect(() => {
-    setShowAddJobForm(false);
-  }, []);
 
   const handleAddJobClick = () => {
     setShowAddJobForm(true);

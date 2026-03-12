@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 const styles = {
   container: {
@@ -26,13 +26,6 @@ const styles = {
     borderRadius: "12px",
     background: "#ffffff",
     boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-    transition: "all 0.3s ease",
-    cursor: "pointer"
-  },
-  jobCardHover: {
-    boxShadow: "0 8px 16px rgba(26, 110, 214, 0.12)",
-    borderColor: "#1a6ed6",
-    transform: "translateY(-2px)"
   },
   jobHeader: {
     display: "flex",
@@ -134,12 +127,12 @@ const styles = {
 };
 
 export default function JobList({ jobs, search, statusFilter, onJobDeleted, onJobUpdated, onEditJob }) {
-  const [hoveredId, setHoveredId] = useState(null);
   
   const updateStatus = async (jobId, newStatus) => {
     try {
       const token = localStorage.getItem("token");
-  
+      if (!token) return;
+
       const res = await fetch(`/api/jobs/${jobId}`, {
         method: "PUT",
         headers: {
@@ -220,12 +213,7 @@ export default function JobList({ jobs, search, statusFilter, onJobDeleted, onJo
       {jobs.map(job => (
         <div
           key={job._id}
-          style={{
-            ...styles.jobCard,
-            ...(hoveredId === job._id ? styles.jobCardHover : {})
-          }}
-          onMouseEnter={() => setHoveredId(job._id)}
-          onMouseLeave={() => setHoveredId(null)}
+          style={styles.jobCard}
         >
           <div style={styles.jobHeader}>
             <div style={{ flex: 1 }}>
@@ -331,7 +319,8 @@ export default function JobList({ jobs, search, statusFilter, onJobDeleted, onJo
                 <button
                   onClick={async () => {
                     const token = localStorage.getItem("token");
-                    await fetch(`http://localhost:5001/api/jobs/${job._id}`, {
+                    if (!token) return;
+                    await fetch(`/api/jobs/${job._id}`, {
                       method: "DELETE",
                       headers: { Authorization: `Bearer ${token}` }
                     });

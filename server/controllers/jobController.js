@@ -15,7 +15,6 @@ const isLocationMatch = (jobLocation, searchLocation) => {
     const jobLoc = jobLocation.toLowerCase().trim();
   
     // Return true if the job's location contains the search term (e.g., "New York, NY" contains "New York")
-    // or if the search term contains the job's location (e.g., "NYC" vs "New York" is harder, but this handles basics)
     return jobLoc.includes(search) || search.includes(jobLoc);
 };
 export const discoverJobs = async (req, res) => {

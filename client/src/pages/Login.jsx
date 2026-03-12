@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 
 const styles = {
@@ -149,12 +149,7 @@ export default function Login() {
 
       if (!res.ok) {
         if (res.status === 404) {
-          const wantsToRegister = window.confirm(
-            "Username not found. Would you like to register instead?"
-          );
-          if (wantsToRegister) {
-            navigate("/register");
-          }
+          setErrorMessage("Username not found. Don't have an account? Create one below.");
           return;
         } else if (res.status === 401) {
           setErrorMessage("Incorrect password. Please try again.");
@@ -278,14 +273,14 @@ export default function Login() {
 
             <div style={styles.footer}>
               Don't have an account?{" "}
-              <a
-                href="/register"
+              <Link
+                to="/register"
                 style={styles.link}
                 onMouseEnter={(e) => e.target.style.opacity = "0.8"}
                 onMouseLeave={(e) => e.target.style.opacity = "1"}
               >
                 Create one
-              </a>
+              </Link>
             </div>
           </div>
         </div>

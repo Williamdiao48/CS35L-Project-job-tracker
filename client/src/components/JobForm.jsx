@@ -59,8 +59,7 @@ export default function JobForm({ onCreated, editingJob }) {
     tags: '',
     jobUrl: '',
     notes: '',
-    salary: '',
-    owner: ''
+    salary: ''
   });
 
   useEffect(() => {
@@ -163,7 +162,7 @@ export default function JobForm({ onCreated, editingJob }) {
           value={form.company}
           onChange={handleChange}
           onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
-          onBlur={(e) => e.target.style.boxShadow = 'none'}
+          onBlur={(e) => Object.assign(e.target.style, { boxShadow: 'none', borderColor: '#e5e7eb' })}
           required
         />
       </div>
@@ -177,7 +176,7 @@ export default function JobForm({ onCreated, editingJob }) {
           value={form.role}
           onChange={handleChange}
           onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
-          onBlur={(e) => e.target.style.boxShadow = 'none'}
+          onBlur={(e) => Object.assign(e.target.style, { boxShadow: 'none', borderColor: '#e5e7eb' })}
           required
         />
       </div>
@@ -190,7 +189,7 @@ export default function JobForm({ onCreated, editingJob }) {
           value={form.status} 
           onChange={handleChange}
           onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
-          onBlur={(e) => e.target.style.boxShadow = 'none'}
+          onBlur={(e) => Object.assign(e.target.style, { boxShadow: 'none', borderColor: '#e5e7eb' })}
         >
           <option>Interested</option>
           <option>Applied</option>
@@ -209,7 +208,7 @@ export default function JobForm({ onCreated, editingJob }) {
           value={form.location}
           onChange={handleChange}
           onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
-          onBlur={(e) => e.target.style.boxShadow = 'none'}
+          onBlur={(e) => Object.assign(e.target.style, { boxShadow: 'none', borderColor: '#e5e7eb' })}
         />
       </div>
 
@@ -222,7 +221,7 @@ export default function JobForm({ onCreated, editingJob }) {
           value={form.dueDate}
           onChange={handleChange}
           onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
-          onBlur={(e) => e.target.style.boxShadow = 'none'}
+          onBlur={(e) => Object.assign(e.target.style, { boxShadow: 'none', borderColor: '#e5e7eb' })}
         />
       </div>
 
@@ -234,7 +233,7 @@ export default function JobForm({ onCreated, editingJob }) {
           value={form.outcome} 
           onChange={handleChange}
           onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
-          onBlur={(e) => e.target.style.boxShadow = 'none'}
+          onBlur={(e) => Object.assign(e.target.style, { boxShadow: 'none', borderColor: '#e5e7eb' })}
         >
           <option>Pending</option>
           <option>Accepted</option>
@@ -251,7 +250,7 @@ export default function JobForm({ onCreated, editingJob }) {
           value={form.tags}
           onChange={handleChange}
           onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
-          onBlur={(e) => e.target.style.boxShadow = 'none'}
+          onBlur={(e) => Object.assign(e.target.style, { boxShadow: 'none', borderColor: '#e5e7eb' })}
         />
       </div>
 
@@ -264,7 +263,7 @@ export default function JobForm({ onCreated, editingJob }) {
           value={form.jobUrl}
           onChange={handleChange}
           onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
-          onBlur={(e) => e.target.style.boxShadow = 'none'}
+          onBlur={(e) => Object.assign(e.target.style, { boxShadow: 'none', borderColor: '#e5e7eb' })}
         />
       </div>
 
@@ -277,7 +276,7 @@ export default function JobForm({ onCreated, editingJob }) {
           value={form.salary}
           onChange={handleChange}
           onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
-          onBlur={(e) => e.target.style.boxShadow = 'none'}
+          onBlur={(e) => Object.assign(e.target.style, { boxShadow: 'none', borderColor: '#e5e7eb' })}
         />
       </div>
 
@@ -290,7 +289,7 @@ export default function JobForm({ onCreated, editingJob }) {
           value={form.notes}
           onChange={handleChange}
           onFocus={(e) => Object.assign(e.target.style, formStyles.inputFocus)}
-          onBlur={(e) => e.target.style.boxShadow = 'none'}
+          onBlur={(e) => Object.assign(e.target.style, { boxShadow: 'none', borderColor: '#e5e7eb' })}
         />
       </div>
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const styles = {
   container: {
@@ -244,14 +244,14 @@ export default function Register() {
 
             <div style={styles.footer}>
               Already have an account?{" "}
-              <a
-                href="/login"
+              <Link
+                to="/login"
                 style={styles.link}
                 onMouseEnter={(e) => e.target.style.opacity = "0.8"}
                 onMouseLeave={(e) => e.target.style.opacity = "1"}
               >
                 Sign in
-              </a>
+              </Link>
             </div>
           </div>
         </div>

@@ -36,35 +36,31 @@ export default function Navbar({ onAddJobClick, onDashboardClick }) {
 
   return (
     <div className="topbar">
-      {/* left section now empty or could hold logo if desired */}
-      <div className="topbar-left" />
+      <div className="topbar-left">
+        <span className="nav-label">Job Tracker</span>
+      </div>
       <div className="topbar-nav">
-        {/* job tracker label on left */}
-        <span className="nav-label" style={{ marginRight: "48.5em" }}>Job Tracker</span>
-        <button 
+        <button
           className={activeTab === "dashboard" ? "active" : ""}
           onClick={() => handleNavClick("dashboard")}
-          style={{ marginLeft: "1.5rem" }}
         >
           Dashboard
         </button>
-        <button 
+        <button
           className={"marketplace" + (activeTab === "marketplace" ? " active" : "")}
           onClick={() => handleNavClick("marketplace")}
-          style={{ marginLeft: "1rem" }}
         >
           Marketplace
         </button>
-        <button 
+        <button
           className={"add-job" + (activeTab === "add-job" ? " active" : "")}
           onClick={() => handleNavClick("add-job")}
-          style={{ marginLeft: "1rem" }}
         >
           + Add Job
         </button>
         <button
           onClick={handleLogout}
-          style={{marginLeft:"1rem", color: "#FF0000"}}>
+          style={{ color: "#FF0000" }}>
           Logout
         </button>
       </div>

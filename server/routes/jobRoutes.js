@@ -53,16 +53,7 @@ router.post('/', authMiddleware, async (req, res) => {
 
 
 router.get('/', authMiddleware, async (req, res) => {
-  console.log("--- GET Jobs Route Hit ---");
-  
   try {
-    // Check if req.user exists from the middleware
-    if (!req.user) {
-      console.error("Error: req.user is missing. Check authMiddleware.");
-      return res.status(401).json({ message: "Not authorized, no user data" });
-    }
-
-    // search mongoDB for search bar requests
     const userId = req.user.id || req.user._id;
     const search = req.query.search;
     const status = req.query.status;
@@ -74,18 +65,15 @@ router.get('/', authMiddleware, async (req, res) => {
     }
 
     if (search) {
-      query = {
-        owner: userId,
-        $or: [
-          { company: { $regex: search, $options: 'i' } },
-          { role: { $regex: search, $options: 'i' } },
-          { location: { $regex: search, $options: 'i' } },
-          { status: { $regex: search, $options: 'i' } },
-          { outcome: { $regex: search, $options: 'i' } },
-          { tags: { $regex: search, $options: 'i' } },
-          { notes: { $regex: search, $options: 'i' } }
-        ]
-      };
+      query.$or = [
+        { company: { $regex: search, $options: 'i' } },
+        { role: { $regex: search, $options: 'i' } },
+        { location: { $regex: search, $options: 'i' } },
+        { status: { $regex: search, $options: 'i' } },
+        { outcome: { $regex: search, $options: 'i' } },
+        { tags: { $regex: search, $options: 'i' } },
+        { notes: { $regex: search, $options: 'i' } }
+      ];
     }
     
     let sortOption = { createdAt: -1 }; // default newest
@@ -114,34 +102,17 @@ router.get('/', authMiddleware, async (req, res) => {
   }
 });
 
-// Get jobs (filter by owner, optionally filter by other categories (can be added as needed))
-/*router.get('/', authMiddleware, async (req, res) => {
-  try {
-    const ownerId = req.user.id || req.user._id;
-    const filter = { owner: ownerId };
-    const { status, company, role } = req.query;
-    if (!owner) {
-        return res.status(400).json({ error: 'Owner ID is required.' });
-    }
-    if (status) filter.status = status;
-    if (company) filter.company = new RegExp(company, 'i');
-    if (role) filter.role = new RegExp(role, 'i');
-
-    //const jobs = await Job.find(filter).sort({ createdAt: -1 });
-    console.log(`Database found ${jobs.length} jobs for this user`);
-    const jobs = await Job.find({ owner: req.user.id || req.user._id });
-    return res.json(jobs);
-  } catch (err) {
-    return res.status(500).json({ error: 'Server error' });
-  }
-}); */
 
 // Update a job
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
-    const { company, role, status, dueDate, 
+    const { company, role, status, dueDate,
       location, outcome, tags, jobUrl,notes, salary
     } = req.body;
+
+    const job = await Job.findById(req.params.id);
+    if (!job) return res.status(404).json({ message: 'Job not found' });
+    if (job.owner.toString() !== req.user.id) return res.status(403).json({ message: 'Forbidden' });
 
     const updateData = {
       company, role, status, dueDate, location, outcome,
@@ -155,7 +126,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
     );
 
     if (!updated) {
-      return res.status(404).json({ message: 'Job not found' });
+      return res.status(404).json({ message: 'Update failed, try again' });
     }
 
     return res.json(updated);
@@ -167,8 +138,12 @@ router.put('/:id', authMiddleware, async (req, res) => {
 });
 
 // Delete a job
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
   try {
+    const job = await Job.findById(req.params.id);
+    if (!job) return res.status(404).json({ message: 'Job not found' });
+    if (job.owner.toString() !== req.user.id) return res.status(403).json({ message: 'Forbidden' });
+
     const removed = await Job.findByIdAndDelete(req.params.id);
     if (!removed) return res.status(404).json({ message: 'Job not found' });
     return res.json({ message: 'Job deleted' });

@@ -3,7 +3,6 @@ import Dashboard from "./pages/Dashboard";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Marketplace from "./pages/Marketplace";
-import JobMarketplace from "./components/JobMarketplace";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -16,7 +15,6 @@ function App() {
           <Route path="/dashboard" element={<ProtectedRoute> <Dashboard /> </ProtectedRoute>} />
           <Route path="/marketplace" element={<ProtectedRoute> <Marketplace /> </ProtectedRoute>} />
           <Route path="/register" element={<Register />} />
-          <Route path="/marketplace" element={<JobMarketplace />} />
         </Routes>
       </BrowserRouter>
     </div>

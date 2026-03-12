@@ -1,5 +1,4 @@
 import axios from 'axios';
-import dotenv from 'dotenv';
 
 // 1. Fetch from Adzuna
 export const fetchAdzuna = async (jobTitle, location = '') => {
@@ -51,8 +50,7 @@ export const fetchSerpApi = async (jobTitle, location = '') => {
         params: {
           engine: 'google_jobs',
           q: searchQuery,
-          api_key: process.env.SerpApi_API_KEY,
-          num: 10 // limit results to save credits
+          api_key: process.env.SerpApi_API_KEY
         }
       });
       return response.data.jobs_results || [];
