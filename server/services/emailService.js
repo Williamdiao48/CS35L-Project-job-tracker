@@ -1,17 +1,17 @@
 import nodemailer from 'nodemailer';
 
-// Create Gmail transporter
-const transporter = nodemailer.createTransport({
+const getTransporter = () => nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_APP_PASSWORD
-  }
+    }
 });
 
 // Send deadline reminder email
 export const sendDeadlineReminder = async (userEmail, username, job) => {
     try {
+        const transporter = getTransporter();
         const mailOptions = {
             from: process.env.GMAIL_USER,
             to: userEmail,
@@ -62,6 +62,7 @@ export const sendDeadlineReminder = async (userEmail, username, job) => {
 // Test email function (optional - for testing setup)
 export const sendTestEmail = async (toEmail) => {
     try {
+        const transporter = getTransporter();
         const mailOptions = {
             from: process.env.GMAIL_USER,
             to: toEmail,
