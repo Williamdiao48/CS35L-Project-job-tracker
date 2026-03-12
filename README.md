@@ -1,6 +1,6 @@
-# JobTrackr — Client (Frontend)
+# JobTrackr
 
-React + Vite frontend for the **JobTrackr** full-stack job application tracker. Built with React 19, React Router 7, and bundled via rolldown-vite.
+A full-stack MERN job application tracker. Built with React 19, React Router 7, Express, MongoDB, and Node.js.
 
 ---
 
@@ -10,13 +10,11 @@ React + Vite frontend for the **JobTrackr** full-stack job application tracker. 
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
 - [Pages & Components](#pages--components)
-- [Dependencies](#dependencies)
 - [Scripts](#scripts)
-- [Vite Configuration](#vite-configuration)
-- [Environment & Proxy](#environment--proxy)
+- [Environment Variables](#environment-variables)
 - [Routing](#routing)
 - [Authentication Flow](#authentication-flow)
-- [API Integration](#api-integration)
+- [API Reference](#api-reference)
 - [Email Notifications](#email-notifications)
 - [Styling](#styling)
 
@@ -24,19 +22,23 @@ React + Vite frontend for the **JobTrackr** full-stack job application tracker. 
 
 ## Project Overview
 
-The client is a single-page React application that provides:
+JobTrackr is a single-page React application with an Express/MongoDB backend that provides:
 
 - User registration and login (JWT-based auth)
 - Google OAuth login for quick authentication
-- A dashboard for viewing all tracked job applications
-- A form for adding new job entries
-- Color-coded status badges and card-based job listings
-- Automated email notifications 24 hours before application deadlines
-- Responsive layout for desktop, tablet, and mobile
+- Protected routes — unauthenticated users are redirected to `/login`
+- A dashboard for viewing, filtering, editing, and deleting tracked job applications
+- Inline status dropdown on each job card (Interested → Applied → Interviewing → Offer → Rejected)
+- Deadline warning badges on cards with upcoming due dates
+- A job marketplace aggregating listings from Adzuna, Reed, and SerpAPI (Google Jobs)
+- A form for adding or editing job entries with timezone-safe date handling
+- Automated email notifications sent the day before application deadlines
 
 ---
 
 ## Tech Stack
+
+### Frontend (`client/`)
 
 | Technology | Version | Purpose |
 |---|---|---|
@@ -45,41 +47,67 @@ The client is a single-page React application that provides:
 | React Router DOM | ^7.13.0 | Client-side routing |
 | Vite (rolldown-vite) | 7.2.5 | Build tool & dev server |
 | @vitejs/plugin-react | ^5.1.1 | Babel-based React Fast Refresh |
-| ESLint | ^9.39.1 | Code linting |
-| eslint-plugin-react-hooks | ^7.0.1 | React Hooks lint rules |
-| eslint-plugin-react-refresh | ^0.4.24 | Vite HMR lint rules |
-| @types/react | ^19.2.5 | React type definitions |
-| @types/react-dom | ^19.2.3 | React DOM type definitions |
-| globals | ^16.5.0 | Global variable definitions for ESLint |
-| @eslint/js | ^9.39.1 | ESLint JS rule set |
+| @react-oauth/google | ^0.12.1 | Google OAuth integration |
+
+### Backend (`server/`)
+
+| Technology | Purpose |
+|---|---|
+| Express | HTTP server and API routing |
+| Mongoose | MongoDB ODM |
+| JSON Web Tokens (jsonwebtoken) | Authentication tokens |
+| bcrypt | Password hashing |
+| Nodemailer | Email sending via Gmail SMTP |
+| node-cron | Scheduled deadline checker |
+| SerpAPI | Google Jobs search results |
+| google-auth-library | Google OAuth token verification |
+| dotenv | Environment variable loading |
 
 ---
 
 ## Project Structure
 
 ```
-client/
-├── index.html                  # Entry HTML — mounts #root div
-├── vite.config.js              # Vite + proxy configuration
-├── eslint.config.js            # ESLint flat config
-├── package.json                # Dependencies and scripts
-├── src/
-│   ├── main.jsx                # React entry — renders App into #root
-│   ├── App.jsx                 # Root component with BrowserRouter + Routes
-│   ├── App.css                 # Layout and component styles
-│   ├── index.css               # Global reset, CSS variables, base styles
-│   ├── pages/
-│   │   ├── Login.jsx           # /login — username/password login form
-│   │   ├── Register.jsx        # /register — new account creation form
-│   │   └── Dashboard.jsx       # /dashboard — main job tracker view
-│   ├── components/
-│   │   ├── DashboardLayout.jsx # Wraps Navbar + page content
-│   │   ├── Navbar.jsx          # Top nav bar with navigation and Add Job button
-│   │   ├── Sidebar.jsx         # Sidebar placeholder (currently minimal)
-│   │   ├── JobForm.jsx         # Form for creating a new job entry
-│   │   └── JobList.jsx         # Card-based list of job applications
-│   └── assets/
-│       └── react.svg
+job-tracker/
+├── .env                            # Environment variables (not committed)
+├── client/
+│   ├── index.html
+│   ├── vite.config.js              # Vite + /api proxy configuration
+│   ├── package.json
+│   └── src/
+│       ├── main.jsx                # React entry point
+│       ├── App.jsx                 # BrowserRouter + Routes
+│       ├── App.css                 # Layout and component styles
+│       ├── index.css               # Global reset and CSS variables
+│       ├── pages/
+│       │   ├── Login.jsx           # /login — username/password + Google OAuth
+│       │   ├── Register.jsx        # /register — new account creation
+│       │   ├── Dashboard.jsx       # /dashboard — main job tracker view
+│       │   └── Marketplace.jsx     # /marketplace — job search page
+│       └── components/
+│           ├── ProtectedRoute.jsx  # Redirects unauthenticated users to /login
+│           ├── DashboardLayout.jsx # Wraps Navbar + page content
+│           ├── Navbar.jsx          # Top nav: Dashboard, Marketplace, + Add Job, Logout
+│           ├── JobForm.jsx         # Add / edit job entry form
+│           ├── JobList.jsx         # Card-based job list with filters
+│           ├── JobMarketplace.jsx  # SerpAPI job search and import UI
+│           └── Sidebar.jsx         # Sidebar placeholder (minimal)
+└── server/
+    ├── server.js                   # Express app, MongoDB connection, cron scheduler
+    ├── middleware/
+    │   └── authMiddleware.js       # JWT verification — populates req.user
+    ├── models/
+    │   ├── jobModel.js             # Job schema
+    │   └── userModel.js            # User schema
+    ├── routes/
+    │   ├── userRoutes.js           # /api/users — login, register, google-login
+    │   ├── jobRoutes.js            # /api/jobs — CRUD operations
+    │   └── notificationRoutes.js   # /api/notifications — manual email triggers
+    ├── services/
+    │   ├── emailService.js         # Gmail SMTP email templates
+    │   └── jobService.js           # SerpAPI Google Jobs integration
+    └── utils/
+        └── deadlineChecker.js      # Queries jobs due tomorrow and sends reminders
 ```
 
 ---
@@ -89,43 +117,48 @@ client/
 ### Pages
 
 #### `Login.jsx` — `/login`
-- Username + password form
-- Google OAuth login option
+- Username + password form with inline error messages (no popups)
+- Google OAuth login option via `@react-oauth/google`
 - `POST /api/users/login`
-- On success: stores `token`, `userId`, `username` in `localStorage`, redirects to `/dashboard`
-- On failure: shows inline error; prompts to register if username not found
+- On success: stores `token`, `userId`, `username` in `localStorage`, navigates to `/dashboard`
+- On failure: displays inline error; if username not found, prompts user to register
+- Internal links use React Router `<Link>` (no full page reload)
 
 #### `Register.jsx` — `/register`
 - Username, email, and password form
 - `POST /api/users/register`
-- On success: stores `token` and user info in `localStorage`, redirects to `/dashboard`
-- User email is stored and used for deadline notifications
+- On success: stores `token` and user info in `localStorage`, navigates to `/dashboard`
+- Email is stored and used for deadline reminder notifications
+- Internal links use React Router `<Link>`
 
 #### `Dashboard.jsx` — `/dashboard`
 - Fetches all jobs for the authenticated user on mount (`GET /api/jobs`)
-- Passes jobs down to `JobList`
-- Renders `JobForm` for adding new jobs
-- `onCreated` callback re-fetches the job list after a new job is added
-- Uses `useCallback` + `useEffect` for data fetching
+- Search bar and status filter dropdown for narrowing results
+- Renders `JobList` with filtered jobs
+- Opens `JobForm` in add mode (via "+ Add Job" in navbar) or edit mode (via Edit button on card)
+- `onCreated` / `onUpdated` callbacks re-fetch the job list after changes
+
+#### `Marketplace.jsx` — `/marketplace`
+- Renders `JobMarketplace` component
+- Allows users to search job listings aggregated from Adzuna, Reed, and SerpAPI (Google Jobs) and add them directly to their tracker
 
 ### Components
 
+#### `ProtectedRoute.jsx`
+- Wraps auth-required routes (`/dashboard`, `/marketplace`)
+- Redirects to `/login` if no token is found in `localStorage`
+
 #### `DashboardLayout.jsx`
 - Layout shell: renders `<Navbar>` above `{children}`
-- CSS classes: `.app-container`, `.main-content`, `.content-wrapper`
 
 #### `Navbar.jsx`
-- Black top bar with "Job Tracker" branding
-- Navigation buttons: Dashboard, Settings, +Add Job
-- Tracks active state per button
-- "+Add Job" button triggers the job form display
-
-#### `Sidebar.jsx`
-- Placeholder sidebar (Dashboard, Add Job, Settings menu items)
-- Not actively used in the current layout
+- Black top bar with "Job Tracker" branding on the left (flexbox layout)
+- Navigation buttons: Dashboard, Marketplace, + Add Job, Logout
+- Active tab highlighted; syncs with current route via `useLocation`
+- Logout clears `localStorage` and navigates to `/login`
 
 #### `JobForm.jsx`
-Full job creation form with the following fields:
+Full job entry form supporting both **add** and **edit** modes:
 
 | Field | Type | Required |
 |---|---|---|
@@ -143,128 +176,93 @@ Full job creation form with the following fields:
 Status options: `Interested`, `Applied`, `Interviewing`, `Offer`, `Rejected`
 Outcome options: `Pending`, `Accepted`, `Rejected`
 
-- Submits via `POST http://localhost:5001/api/jobs` with `Authorization: Bearer <token>`
+- Submits via `POST /api/jobs` (add) or `PUT /api/jobs/:id` (edit)
+- Date input values are appended with `T00:00:00` before submission so dates are stored as local midnight (avoiding UTC off-by-one-day display issues)
 - Tags are split by comma and trimmed before submission
-- Calls `onCreated()` prop after successful submission to refresh the parent list
-- Resets form after submission
-- If a deadline is set, user will receive email notification 24 hours before
+- Resets form after successful submission
 
 #### `JobList.jsx`
-- Renders an empty state with a help message when no jobs exist
-- Renders job cards for each entry with:
+- Empty state UI when no jobs exist or no filters match
+- Renders a card per job with:
   - Company name and role
-  - Status badge (color-coded: blue/orange/green/red)
-  - Location, deadline, salary
-  - Outcome (shown only when not Pending)
-  - Clickable job URL
-  - Tag chips
-  - Notes
+  - Inline status `<select>` dropdown (color-coded) — changes saved immediately via `PUT /api/jobs/:id`
+  - Location, deadline, salary, outcome, job URL link, tag chips, notes
+  - **Edit** button — opens `JobForm` in edit mode
+  - **Delete** button — calls `DELETE /api/jobs/:id` and refreshes list
+  - **Deadline warning badge** — shown on `Interested` jobs with deadlines within 7 days:
+    - Overdue → red "Overdue"
+    - 0 days → red "Due today"
+    - 1–3 days → orange "Due in N day(s)"
+    - 4–7 days → blue "Due in N days"
 
-Status badge colors:
-| Status | Background |
-|---|---|
-| Applied | `#E3F2FD` (blue) |
-| Interviewing | `#FFF3E0` (orange) |
-| Offer | `#E8F5E9` (green) |
-| Rejected | `#FFEBEE` (red) |
-
----
-
-## Dependencies
-
-### Production (`dependencies`)
-
-```json
-"react": "^19.2.0"
-"react-dom": "^19.2.0"
-"react-router-dom": "^7.13.0"
-"@react-oauth/google": "^0.12.1"
-```
-
-### Development (`devDependencies`)
-
-```json
-"@eslint/js": "^9.39.1"
-"@types/react": "^19.2.5"
-"@types/react-dom": "^19.2.3"
-"@vitejs/plugin-react": "^5.1.1"
-"eslint": "^9.39.1"
-"eslint-plugin-react-hooks": "^7.0.1"
-"eslint-plugin-react-refresh": "^0.4.24"
-"globals": "^16.5.0"
-"vite": "npm:rolldown-vite@7.2.5"
-```
-
-> **Note:** `vite` is aliased to `rolldown-vite@7.2.5` via both `devDependencies` and the `overrides` field. rolldown-vite is an experimental Vite fork using the Rolldown bundler (Rust-based) for improved build performance.
+#### `JobMarketplace.jsx`
+- Search interface that queries `GET /api/jobs/discover` with a job title and optional location
+- Aggregates results from Adzuna, Reed (UK-focused), and SerpAPI (Google Jobs)
+- Displays external job listings with title, company, location, and description
+- "Add to Tracker" button imports a listing directly into the user's job list
 
 ---
 
 ## Scripts
 
-Defined in `package.json`:
+### Client
+
+Run from `client/`:
 
 | Script | Command | Description |
 |---|---|---|
-| `dev` | `vite` | Start development server with HMR at `http://localhost:5173` |
-| `build` | `vite build` | Production build output to `dist/` |
-| `preview` | `vite preview` | Serve the production build locally for testing |
-| `lint` | `eslint .` | Run ESLint across all source files |
+| `dev` | `vite` | Start dev server with HMR at `http://localhost:5050` |
+| `build` | `vite build` | Production build to `dist/` |
+| `preview` | `vite preview` | Serve the production build locally |
+| `lint` | `eslint .` | Run ESLint |
 
-Run any script with:
+### Server
+
+Run from `server/`:
+
 ```bash
-npm run <script>
-# or
-yarn <script>
+node server.js          # start the server
+nodemon server.js       # start with auto-reload (requires nodemon dev dependency)
 ```
 
 ---
 
-## Vite Configuration
+## Environment Variables
 
-**File:** [client/vite.config.js](client/vite.config.js)
+All environment variables live in a single `.env` file at the **project root** (one level above `client/` and `server/`). The server loads it with `dotenv.config({ path: '../.env' })` when run from the `server/` directory.
 
-```js
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+| Variable | Description |
+|---|---|
+| `MONGO_URI` | MongoDB connection string |
+| `JWT_SECRET` | Secret key for signing JWT tokens |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
+| `SerpApi_API_KEY` | SerpAPI key for Google Jobs search |
+| `ADZUNA_APP_ID` | Adzuna application ID for job search |
+| `ADZUNA_API_KEY` | Adzuna API key for job search |
+| `Reed_API_KEY` | Reed API key for job search |
+| `GMAIL_USER` | Gmail address for sending notifications |
+| `GMAIL_APP_PASSWORD` | Gmail App Password (16 characters, not your regular password) |
+| `PORT` | Optional — server port (defaults to `5001`) |
 
-export default defineConfig({
-  plugins: [react()],
-  server: {
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5001',
-        changeOrigin: true,
-      }
-    }
-  }
-})
-```
+> **Gmail setup:** App Passwords require 2-Step Verification to be enabled on the Gmail account. Generate one at myaccount.google.com → Security → App passwords.
 
-- Uses `@vitejs/plugin-react` (Babel-based Fast Refresh)
-- Dev server proxies all `/api/*` requests to the Express backend at `http://localhost:5001`
-
----
-
-## Environment & Proxy
-
-No `.env` file is required in the `client/` directory. API calls made to `/api/...` during development are automatically proxied to `http://localhost:5001` by Vite's dev server (see [Vite Configuration](#vite-configuration)).
-
-> In production, ensure the backend is reachable and API calls point to the correct origin.
+No `.env` file is needed in `client/`. API calls to `/api/*` are proxied to the backend by Vite during development.
 
 ---
 
 ## Routing
 
-Defined in [client/src/App.jsx](client/src/App.jsx) using `react-router-dom`:
+Defined in [client/src/App.jsx](client/src/App.jsx):
 
-| Path | Component | Description |
+| Path | Component | Auth Required |
 |---|---|---|
-| `/` | `Login` | Default route — redirects to login |
-| `/login` | `Login` | Login page |
-| `/register` | `Register` | Registration page |
-| `/dashboard` | `Dashboard` | Main job tracker (requires auth) |
+| `/` | `Login` | No |
+| `/login` | `Login` | No |
+| `/register` | `Register` | No |
+| `/dashboard` | `Dashboard` | Yes (ProtectedRoute) |
+| `/marketplace` | `Marketplace` | Yes (ProtectedRoute) |
 
-> There is currently no route guard enforcing authentication. Unauthenticated access to `/dashboard` will attempt to fetch jobs and fail silently.
+`ProtectedRoute` checks for a token in `localStorage` and redirects to `/login` if absent.
 
 ---
 
@@ -273,97 +271,103 @@ Defined in [client/src/App.jsx](client/src/App.jsx) using `react-router-dom`:
 ### Email / Password Login
 1. User submits username and password
 2. `POST /api/users/login`
-3. Server verifies password using bcrypt
-4. Server returns a JWT token
-5. Token is stored in localStorage and used for authenticated API requests
+3. Server verifies password using bcrypt, returns a signed JWT
+4. Client stores `token`, `userId`, `username` in `localStorage`
+5. All subsequent API requests include `Authorization: Bearer <token>`
 
 ### Google OAuth Login
 1. User clicks "Sign in with Google"
 2. Google Identity Services returns an ID token
 3. Client sends token to `POST /api/users/google-login`
-4. Backend verifies token using `google-auth-library`
-5. If the email does not exist, a new user is automatically created
-6. Server returns a JWT token used for authenticated requests
+4. Server verifies token using `google-auth-library`
+5. If email does not exist in DB, a new user is created automatically
+6. Server returns a JWT used for all subsequent requests
 
-All authenticated API requests include:
-Authorization: Bearer <token>
+### Auth Middleware
+All protected API routes pass through `authMiddleware`, which:
+- Extracts the Bearer token from the `Authorization` header
+- Verifies it using `jwt.verify`
+- Populates `req.user` with the decoded payload
+- Returns `401` if the token is missing or invalid
 
 ---
 
-## API Integration
+## API Reference
 
-All API requests target the backend. In development, Vite proxies `/api/*` to `http://localhost:5001`.
+All requests in development go to `/api/*` — proxied by Vite to `http://localhost:5001`.
 
-| Method | Endpoint | Auth | Used In |
+| Method | Endpoint | Auth | Description |
 |---|---|---|---|
-| POST | `/api/users/login` | No | `Login.jsx` |
-| POST | `/api/users/google-login` | No | `Login.jsx` |
-| POST | `/api/users/register` | No | `Register.jsx` |
-| GET | `/api/jobs` | Yes (Bearer) | `Dashboard.jsx` |
-| POST | `/api/jobs` | Yes (Bearer) | `JobForm.jsx` |
-| POST | `/api/notifications/check-deadlines` | Yes (Bearer) | Manual trigger |
-| POST | `/api/notifications/test-email` | Yes (Bearer) | Testing |
-
-
-> `JobForm.jsx` currently calls `http://localhost:5001/api/jobs` directly instead of using the `/api` proxy path. This works in development but may break in other environments.
+| POST | `/api/users/register` | No | Create a new account |
+| POST | `/api/users/login` | No | Login with username + password |
+| POST | `/api/users/google-login` | No | Login or register via Google OAuth |
+| GET | `/api/jobs` | Yes | Get all jobs for the logged-in user (supports `?search=`, `?status=`, `?sort=` query params) |
+| GET | `/api/jobs/discover` | Yes | Search external job APIs (Adzuna, Reed, SerpAPI) — accepts `?title=` and `?location=` |
+| POST | `/api/jobs` | Yes | Create a new job entry |
+| PUT | `/api/jobs/:id` | Yes | Update a job (any field, including status) |
+| DELETE | `/api/jobs/:id` | Yes | Delete a job |
+| POST | `/api/notifications/check-deadlines` | Yes | Manually trigger the deadline checker |
+| POST | `/api/notifications/test-email` | Yes | Send a test email to the logged-in user |
 
 ---
 
 ## Email Notifications
 
 ### Overview
-JobTrackr includes an automated email notification system that sends reminders 24 hours before job application deadlines.
+JobTrackr sends automated email reminders the day before a job application deadline.
 
 ### How It Works
-1. When users register, their email is stored in the database
-2. When users add a job with a deadline date, it's stored in MongoDB
-3. A cron job runs daily at 9:00 AM to check for upcoming deadlines
-4. Users receive professional email notifications 24 hours before their deadlines
+1. When a user registers, their email is stored in MongoDB
+2. When a job is created with a deadline, the date is stored as local midnight
+3. A cron job runs daily at **9:00 AM** (server local time)
+4. The checker queries for jobs with `dueDate` falling within tomorrow (midnight to midnight)
+5. A reminder email is sent to the job owner for each match
 
-### Backend Implementation
+### Why Tomorrow (Not "24 Hours From Now")
+Since deadlines have no time component — they are always stored at midnight of the chosen day — the checker targets jobs due specifically **tomorrow**. This ensures consistent behavior: the email always arrives the morning before the deadline, regardless of what time the cron fires.
 
-#### Technologies Used
-- **Nodemailer**: Email sending library for Node.js
-- **Node-cron**: Task scheduler for automated daily checks
-- **Gmail SMTP**: Email delivery service
+### Email Service Implementation
+The nodemailer transporter is created lazily (inside a `getTransporter()` function) rather than at module load time. This is required because the project uses ES modules — all `import` statements are hoisted and resolved before any code runs, including before `dotenv.config()` is called. Creating the transporter lazily ensures environment variables are populated when the transporter is first used.
 
-#### File Structure
+### Setup Requirements
+- `GMAIL_USER` and `GMAIL_APP_PASSWORD` must be set in `.env`
+- The Gmail account must have 2-Step Verification enabled
+- `GMAIL_APP_PASSWORD` must be a Gmail App Password, not the account password
+
+### Testing Endpoints
+```bash
+# Manually trigger the deadline checker
+curl -X POST http://localhost:5001/api/notifications/check-deadlines \
+  -H "Authorization: Bearer <token>"
+
+# Send a test email to verify Gmail credentials
+curl -X POST http://localhost:5001/api/notifications/test-email \
+  -H "Authorization: Bearer <token>"
 ```
-server/
-├── services/
-│   └── emailService.js         # Gmail SMTP configuration and email templates
-├── utils/
-│   └── deadlineChecker.js      # Deadline detection and notification logic
-├── routes/
-│   └── notificationRoutes.js   # API endpoints for manual testing
-└── server.js                    # Cron scheduler configuration
-```
 
-#### Testing Endpoints
-
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/api/notifications/check-deadlines` | Manually trigger deadline check |
-| POST | `/api/notifications/test-email` | Send test email to logged-in user |
+---
 
 ## Styling
 
 ### `index.css` — Global styles
-- CSS custom properties:
-  ```css
-  --primary-black: #000000
-  --primary-white: #ffffff
-  --primary-blue: #1a6ed6
-  ```
-- System font stack for cross-platform consistency
+- CSS custom properties: `--primary-black`, `--primary-white`, `--primary-blue`
+- System font stack
 - Global margin/padding reset
 - Base styles for `<a>`, `<button>`, `<input>`, `<textarea>`, `<select>`
 
 ### `App.css` — Layout & component styles
-- Black top navigation bar (`.topbar`) with white text and blue hover states
-- Dashboard two-column grid layout: `1fr` (form) + `2fr` (job list)
+- `.topbar`: black navigation bar using flexbox — `topbar-left` (branding) pushes `topbar-nav` (buttons) to the right via `margin-right: auto`
+- Dashboard two-column grid: `1fr` (form) + `2fr` (job list)
 - Responsive breakpoints:
   - `≤ 1024px` (tablet): stacks form and job list vertically
   - `≤ 640px` (mobile): adjusts padding and font sizes
 - Job card styles with box shadow and rounded corners
-- Status badge and tag chip styles
+- Status badge colors:
+
+| Status | Color |
+|---|---|
+| Interested | Gray |
+| Applied | Blue (`#dbeafe`) |
+| Interviewing | Orange (`#fef3c7`) |
+| Offer | Green (`#dcfce7`) |
+| Rejected | Red (`#fee2e2`) |
