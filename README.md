@@ -6,6 +6,7 @@ A full-stack MERN job application tracker. Built with React 19, React Router 7, 
 
 ## Table of Contents
 
+- [Getting Started](#getting-started)
 - [Project Overview](#project-overview)
 - [Tech Stack](#tech-stack)
 - [Project Structure](#project-structure)
@@ -17,6 +18,61 @@ A full-stack MERN job application tracker. Built with React 19, React Router 7, 
 - [API Reference](#api-reference)
 - [Email Notifications](#email-notifications)
 - [Styling](#styling)
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Node.js v18 or higher
+- A `.env` file placed in the **project root** (the folder containing `client/` and `server/`) — see [Environment Variables](#environment-variables) for required values
+
+### 1. Install dependencies
+
+```bash
+# Install server dependencies
+cd server
+npm install
+
+# Install client dependencies (from project root)
+cd client
+npm install
+```
+
+### 2. Start the server
+
+In one terminal, from the project root:
+
+```bash
+cd server
+node server.js
+```
+
+You should see:
+```
+Connected to MongoDB
+Server running on port 5001
+Email notification scheduler activated (runs daily at 9 AM)
+```
+
+### 3. Start the client
+
+In a second terminal, from the project root:
+
+```bash
+cd client
+npm run dev
+```
+
+You should see:
+```
+  VITE ready in ...ms
+  ➜  Local: http://localhost:5050/
+```
+
+### 4. Open the app
+
+Navigate to `http://localhost:5050` in your browser. Both the server (port 5001) and client (port 5050) must be running simultaneously.
 
 ---
 
